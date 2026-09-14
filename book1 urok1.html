@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 1 | Guli Rus tili</title>
+<style>
+  :root {
+    --purple: #7c3aed; --purple-dark: #5b21b6; --purple-light: #f3ecfd;
+    --bg: #faf8ff; --text: #201533; --gray: #6b6478; --green: #15803d; --red: #b91c1c;
+    --border: #e6ddf5;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height:1.55; }
+  header { background: linear-gradient(135deg, var(--purple), var(--purple-dark)); color: white; padding: 22px 18px 26px; }
+  header .eyebrow { font-size: 0.8rem; opacity: 0.85; margin: 0 0 4px; }
+  header h1 { margin: 0; font-size: 1.2rem; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 60px; }
+  .tabs { display:flex; gap:8px; margin: -14px 0 20px; position: relative; z-index: 2; flex-wrap:wrap; }
+  .tab-btn { flex:1; min-width:100px; background: white; border: 1px solid var(--border); padding: 10px 6px; border-radius: 10px; font-size: 0.85rem; font-weight:600; color: var(--purple-dark); cursor:pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.08); }
+  .tab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 20px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--purple-dark); }
+  table.vocab { width:100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.vocab th { background: var(--purple-light); text-align:left; padding: 7px 8px; }
+  table.vocab td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.vocab td.uz { color: var(--gray); }
+  .task-block { margin-bottom: 26px; }
+  .task-block h3 { font-size: 0.98rem; color: var(--purple-dark); margin: 0 0 4px; }
+  .task-block .instr { font-size: 0.85rem; color: var(--gray); margin: 0 0 10px; }
+  .progress-summary { display:flex; align-items:center; gap:10px; margin-bottom: 12px; }
+  .progress-bar { flex:1; height: 8px; background: var(--purple-light); border-radius: 5px; overflow:hidden; }
+  .progress-fill { height:100%; background: var(--purple); width:0%; transition: width .3s; }
+  .progress-text { font-size: 0.8rem; color: var(--gray); white-space:nowrap; }
+  .task-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .task-item:last-child { border-bottom:none; }
+  .task-prompt { margin-bottom: 6px; font-size: 0.93rem; }
+  .task-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .task-input { flex:1; min-width: 140px; padding: 8px 10px; border:1px solid var(--border); border-radius: 8px; font-size: 0.92rem; }
+  .task-input.correct { border-color: var(--green); background:#f0fdf4; }
+  .task-input.wrong { border-color: var(--red); background:#fef2f2; }
+  .btn { padding: 8px 14px; background: var(--purple); color:white; border:none; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; }
+  .btn:hover { background: var(--purple-dark); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .feedback { font-size: 0.82rem; font-weight:600; min-width: 60px; }
+  .feedback.ok { color: var(--green); }
+  .feedback.bad { color: var(--red); }
+  .reveal { font-size: 0.8rem; color: var(--gray); margin-top:4px; display:none; }
+  footer { text-align:center; color:var(--gray); font-size:0.75rem; padding:10px 20px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">Guli | Rus tili — Книга 1</p>
+  <h1>Урок 1. Простые предложения (кто/что это?, да/нет/но/и/а/или/тоже/только)</h1>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="vocab">📖 Словарь</button>
+    <button class="tab-btn" data-tab="tasks">✏️ Задания</button>
+    <button class="tab-btn" data-tab="homework">🏠 Дом. задание</button>
+  </div>
+
+  <div id="panel-vocab" class="panel active">
+    <div class="card">
+      <h2>Слова урока (<span id="vocab-count"></span>)</h2>
+      <table class="vocab"><thead><tr><th>№</th><th>Русский</th><th>O'zbekcha</th></tr></thead>
+      <tbody id="vocab-body"></tbody></table>
+    </div>
+  </div>
+
+  <div id="panel-tasks" class="panel">
+    <div id="tasks-container"></div>
+  </div>
+
+  <div id="panel-homework" class="panel">
+    <div id="homework-container"></div>
+  </div>
+</div>
+<footer>Guli | Rus tili — прогресс сохраняется локально в этом браузере</footer>
+
+<script>
+const LESSON = {"id": 1, "title": "Простые предложения (кто/что это?, да/нет/но/и/а/или/тоже/только)", "vocab": [["я", "men"], ["ты", "sen"], ["он", "u (erkak)"], ["она", "u (ayol)"], ["оно", "u (jonsiz)"], ["мы", "biz"], ["вы", "siz"], ["они", "ular"], ["сегодня", "bugun"], ["завтра", "ertaga"], ["вчера", "kecha"], ["утро", "ertalab / tong"], ["день", "kun"], ["вечер", "kech / oqshom"], ["ночь", "tun"], ["неделя", "hafta"], ["месяц", "oy"], ["год", "yil"], ["бабушка", "buvi"], ["дедушка", "buva"], ["жена", "xotin / rafiqa"], ["муж", "er / turmush o'rtoq"], ["сын", "o'g'il"], ["дочь", "qiz"], ["гость", "mehmon"], ["сосед", "qo'shni (erkak)"], ["соседка", "qo'shni (ayol)"], ["малыш", "chaqaloq / bola"], ["комната", "xona"], ["кровать", "krovat"], ["подушка", "yostiq"], ["одеяло", "ko'rpa / adyol"], ["полка", "tokcha"], ["ковёр", "gilam"], ["зеркало", "oyna (ko'zgu)"], ["свеча", "sham"], ["ключ", "kalit"], ["крыша", "tom"], ["лампа", "lampa"], ["балкон", "balkon"], ["небо", "osmon"], ["солнце", "quyosh"], ["луна", "oy"], ["звезда", "yulduz"], ["гора", "tog'"], ["река", "daryo"], ["озеро", "ko'l"], ["лес", "o'rmon"], ["дерево", "daraxt"], ["цветок", "gul"], ["улица", "ko'cha"], ["площадь", "maydon"], ["магазин", "do'kon"], ["рынок", "bozor"], ["аптека", "dorixona"], ["остановка", "bekat"], ["светофор", "svetofor"], ["дорога", "yo'l"], ["мост", "ko'prik"], ["парк", "park"], ["чайник", "choynak"], ["кастрюля", "qozon / kastryulka"], ["сковорода", "tova"], ["полотенце", "sochiq"], ["посуда", "idish-tovoq"], ["завтрак", "nonushta"], ["обед", "tushlik"], ["ужин", "kechki ovqat"], ["тарелка", "likopcha"], ["ложка", "qoshiq"], ["жара", "jazirama / issiqlik"], ["холод", "sovuq"], ["туман", "tuman"], ["гроза", "chaqmoqli bo'ron"], ["буря", "bo'ron"], ["тепло", "iliqlik"], ["прохлада", "salqinlik"], ["облако", "bulut"], ["гром", "momaqaldiroq"], ["радуга", "kamalak"], ["деньги", "pul"], ["время", "vaqt"], ["работа", "ish"], ["отдых", "dam olish"], ["праздник", "bayram"], ["подарок", "sovg'a"], ["письмо", "xat"], ["звонок", "qo'ng'iroq"], ["новость", "yangilik"], ["встреча", "uchrashuv"], ["радость", "quvonch"], ["грусть", "g'am / xafalik"], ["страх", "qo'rquv"], ["злость", "g'azab"], ["усталость", "charchoq"], ["скука", "zerikish"], ["любовь", "sevgi / muhabbat"], ["дружба", "do'stlik"], ["счастье", "baxt"], ["удивление", "hayrat / ajablanish"]], "tasks": [{"title": "Задание 1", "instruction": "Savolga javob bering: «Кто это?» yoki «Что это?»", "items": [{"prompt": "кто это? (бабушка)", "answer": "Это бабушка."}, {"prompt": "что это? (магазин)", "answer": "Это магазин."}, {"prompt": "кто это? (дедушка)", "answer": "Это дедушка."}, {"prompt": "что это? (озеро)", "answer": "Это озеро."}, {"prompt": "кто это? (гость)", "answer": "Это гость."}, {"prompt": "что это? (парк)", "answer": "Это парк."}, {"prompt": "кто это? (сосед)", "answer": "Это сосед."}, {"prompt": "что это? (тарелка)", "answer": "Это тарелка."}, {"prompt": "кто это? (соседка)", "answer": "Это соседка."}, {"prompt": "что это? (звезда)", "answer": "Это звезда."}, {"prompt": "кто это? (малыш)", "answer": "Это малыш."}, {"prompt": "что это? (мост)", "answer": "Это мост."}], "selfCheck": false}, {"title": "Задание 2", "instruction": "Savolga javob bering: «Где...?» — там / здесь (ikkalasi ham to'g'ri)", "items": [{"prompt": "где комната?", "answer": "там. / здесь."}, {"prompt": "где балкон?", "answer": "там. / здесь."}, {"prompt": "где зеркало?", "answer": "там. / здесь."}, {"prompt": "где свеча?", "answer": "там. / здесь."}, {"prompt": "где ковёр?", "answer": "там. / здесь."}, {"prompt": "где лампа?", "answer": "там. / здесь."}, {"prompt": "где подушка?", "answer": "там. / здесь."}, {"prompt": "где одеяло?", "answer": "там. / здесь."}, {"prompt": "где полка?", "answer": "там. / здесь."}, {"prompt": "где крыша?", "answer": "там. / здесь."}, {"prompt": "где кровать?", "answer": "там. / здесь."}, {"prompt": "где ключ?", "answer": "там. / здесь."}], "selfCheck": true}, {"title": "Задание 3", "instruction": "Berilgan savolga «да» deb javob bering.", "items": [{"prompt": "это гора?", "answer": "Да, это гора."}, {"prompt": "это радуга?", "answer": "Да, это радуга."}, {"prompt": "это праздник?", "answer": "Да, это праздник."}, {"prompt": "это подарок?", "answer": "Да, это подарок."}, {"prompt": "это звонок?", "answer": "Да, это звонок."}, {"prompt": "это встреча?", "answer": "Да, это встреча."}, {"prompt": "это работа?", "answer": "Да, это работа."}, {"prompt": "это отдых?", "answer": "Да, это отдых."}, {"prompt": "это счастье?", "answer": "Да, это счастье."}, {"prompt": "это любовь?", "answer": "Да, это любовь."}, {"prompt": "это дружба?", "answer": "Да, это дружба."}, {"prompt": "это удивление?", "answer": "Да, это удивление."}], "selfCheck": false}, {"title": "Задание 4", "instruction": "Berilgan savolga «нет» deb javob bering.", "items": [{"prompt": "это гроза?", "answer": "Нет, не гроза."}, {"prompt": "это буря?", "answer": "Нет, не буря."}, {"prompt": "это облако?", "answer": "Нет, не облако."}, {"prompt": "это гром?", "answer": "Нет, не гром."}, {"prompt": "это жара?", "answer": "Нет, не жара."}, {"prompt": "это холод?", "answer": "Нет, не холод."}, {"prompt": "это тепло?", "answer": "Нет, не тепло."}, {"prompt": "это прохлада?", "answer": "Нет, не прохлада."}, {"prompt": "это скука?", "answer": "Нет, не скука."}, {"prompt": "это страх?", "answer": "Нет, не страх."}, {"prompt": "это злость?", "answer": "Нет, не злость."}, {"prompt": "это грусть?", "answer": "Нет, не грусть."}], "selfCheck": false}, {"title": "Задание 5", "instruction": "Berilgan so'zlarni «и» bilan bog'lang.", "items": [{"prompt": "(сын, дочь)", "answer": "Сын и дочь."}, {"prompt": "(бабушка, дедушка)", "answer": "Бабушка и дедушка."}, {"prompt": "(жена, муж)", "answer": "Жена и муж."}, {"prompt": "(сосед, соседка)", "answer": "Сосед и соседка."}, {"prompt": "(река, озеро)", "answer": "Река и озеро."}, {"prompt": "(лес, гора)", "answer": "Лес и гора."}, {"prompt": "(солнце, луна)", "answer": "Солнце и луна."}, {"prompt": "(день, ночь)", "answer": "День и ночь."}, {"prompt": "(завтрак, обед)", "answer": "Завтрак и обед."}, {"prompt": "(чайник, кастрюля)", "answer": "Чайник и кастрюля."}, {"prompt": "(радость, счастье)", "answer": "Радость и счастье."}, {"prompt": "(дружба, любовь)", "answer": "Дружба и любовь."}], "selfCheck": false}, {"title": "Задание 6", "instruction": "Berilgan so'zlarni «но» bilan bog'lang.", "items": [{"prompt": "это утро и вечер?", "answer": "Да, это утро, но это не вечер."}, {"prompt": "это лес и парк?", "answer": "Да, это лес, но это не парк."}, {"prompt": "это гора и озеро?", "answer": "Да, это гора, но это не озеро."}, {"prompt": "это сын и дочь?", "answer": "Да, это сын, но это не дочь."}, {"prompt": "это бабушка и соседка?", "answer": "Да, это бабушка, но это не соседка."}, {"prompt": "это радость и грусть?", "answer": "Да, это радость, но это не грусть."}, {"prompt": "это тепло и холод?", "answer": "Да, это тепло, но это не холод."}, {"prompt": "это завтрак и ужин?", "answer": "Да, это завтрак, но это не ужин."}, {"prompt": "это чайник и сковорода?", "answer": "Да, это чайник, но это не сковорода."}, {"prompt": "это письмо и звонок?", "answer": "Да, это письмо, но это не звонок."}, {"prompt": "это работа и отдых?", "answer": "Да, это работа, но это не отдых."}, {"prompt": "это дружба и любовь?", "answer": "Да, это дружба, но это не любовь."}], "selfCheck": false}, {"title": "Задание 7", "instruction": "Berilgan savolga «или» yordamida javob bering (ikkala javob ham to'g'ri).", "items": [{"prompt": "это завтрак или обед?", "answer": "(любой из двух — A или B)"}, {"prompt": "это лес или гора?", "answer": "(любой из двух — A или B)"}, {"prompt": "это радость или грусть?", "answer": "(любой из двух — A или B)"}, {"prompt": "это работа или отдых?", "answer": "(любой из двух — A или B)"}, {"prompt": "это утро или вечер?", "answer": "(любой из двух — A или B)"}, {"prompt": "это день или ночь?", "answer": "(любой из двух — A или B)"}, {"prompt": "это подарок или письмо?", "answer": "(любой из двух — A или B)"}, {"prompt": "это дружба или любовь?", "answer": "(любой из двух — A или B)"}, {"prompt": "это холод или жара?", "answer": "(любой из двух — A или B)"}, {"prompt": "это туман или гроза?", "answer": "(любой из двух — A или B)"}, {"prompt": "это гость или сосед?", "answer": "(любой из двух — A или B)"}, {"prompt": "это ложка или тарелка?", "answer": "(любой из двух — A или B)"}], "selfCheck": true}, {"title": "Задание 8", "instruction": "Berilgan so'zlarni «а» bilan solishtiring.", "items": [{"prompt": "(лес, парк)", "answer": "Это лес, а это парк."}, {"prompt": "(река, озеро)", "answer": "Это река, а это озеро."}, {"prompt": "(утро, вечер)", "answer": "Это утро, а это вечер."}, {"prompt": "(день, ночь)", "answer": "Это день, а это ночь."}, {"prompt": "(сын, дочь)", "answer": "Это сын, а это дочь."}, {"prompt": "(бабушка, дедушка)", "answer": "Это бабушка, а это дедушка."}, {"prompt": "(жена, муж)", "answer": "Это жена, а это муж."}, {"prompt": "(радость, грусть)", "answer": "Это радость, а это грусть."}, {"prompt": "(работа, отдых)", "answer": "Это работа, а это отдых."}, {"prompt": "(завтрак, ужин)", "answer": "Это завтрак, а это ужин."}, {"prompt": "(гроза, буря)", "answer": "Это гроза, а это буря."}, {"prompt": "(комната, балкон)", "answer": "Это комната, а это балкон."}], "selfCheck": false}, {"title": "Задание 9", "instruction": "«тоже» / «тоже не» so'zlari bilan gap tuzing.", "items": [{"prompt": "(озеро)", "answer": "Это тоже озеро."}, {"prompt": "(не праздник)", "answer": "Это тоже не праздник."}, {"prompt": "(подарок)", "answer": "Это тоже подарок."}, {"prompt": "(не скука)", "answer": "Это тоже не скука."}, {"prompt": "(дружба)", "answer": "Это тоже дружба."}, {"prompt": "(не страх)", "answer": "Это тоже не страх."}, {"prompt": "(сосед)", "answer": "Это тоже сосед."}, {"prompt": "(не гроза)", "answer": "Это тоже не гроза."}, {"prompt": "(счастье)", "answer": "Это тоже счастье."}, {"prompt": "(не работа)", "answer": "Это тоже не работа."}, {"prompt": "(лампа)", "answer": "Это тоже лампа."}, {"prompt": "(не туман)", "answer": "Это тоже не туман."}], "selfCheck": false}, {"title": "Задание 10", "instruction": "«только» so'zi bilan gap tuzing.", "items": [{"prompt": "(ключ)", "answer": "Здесь только ключ."}, {"prompt": "(свеча)", "answer": "Здесь только свеча."}, {"prompt": "(зеркало)", "answer": "Здесь только зеркало."}, {"prompt": "(подушка)", "answer": "Здесь только подушка."}, {"prompt": "(лампа)", "answer": "Здесь только лампа."}, {"prompt": "(балкон)", "answer": "Здесь только балкон."}, {"prompt": "(ковёр)", "answer": "Здесь только ковёр."}, {"prompt": "(полка)", "answer": "Здесь только полка."}, {"prompt": "(одеяло)", "answer": "Здесь только одеяло."}, {"prompt": "(крыша)", "answer": "Здесь только крыша."}, {"prompt": "(кровать)", "answer": "Здесь только кровать."}, {"prompt": "(комната)", "answer": "Здесь только комната."}], "selfCheck": false}, {"title": "Задание 11", "instruction": "«не... а...» qurilmasi bilan gap tuzing.", "items": [{"prompt": "(гора, река)", "answer": "Это не гора, а река."}, {"prompt": "(радость, грусть)", "answer": "Это не радость, а грусть."}, {"prompt": "(завтрак, ужин)", "answer": "Это не завтрак, а ужин."}, {"prompt": "(сын, дочь)", "answer": "Это не сын, а дочь."}, {"prompt": "(бабушка, дедушка)", "answer": "Это не бабушка, а дедушка."}, {"prompt": "(жена, муж)", "answer": "Это не жена, а муж."}, {"prompt": "(лес, парк)", "answer": "Это не лес, а парк."}, {"prompt": "(день, ночь)", "answer": "Это не день, а ночь."}, {"prompt": "(работа, отдых)", "answer": "Это не работа, а отдых."}, {"prompt": "(дружба, любовь)", "answer": "Это не дружба, а любовь."}, {"prompt": "(гроза, буря)", "answer": "Это не гроза, а буря."}, {"prompt": "(утро, вечер)", "answer": "Это не утро, а вечер."}], "selfCheck": false}], "homework_sections": [{"title": "Домашнее задание A", "instruction": "Namunaga qarab, har bir so'z juftligi uchun 5 xil gap tuzing: да / нет / но / и / а.", "items": [{"prompt": "(да) (лампа, балкон)", "answer": "Да, это лампа."}, {"prompt": "(нет) (лампа, балкон)", "answer": "Нет, это не балкон."}, {"prompt": "(но) (лампа, балкон)", "answer": "Да, это лампа, но это не балкон."}, {"prompt": "(и) (лампа, балкон)", "answer": "Лампа и балкон."}, {"prompt": "(а) (лампа, балкон)", "answer": "Это лампа, а это балкон."}, {"prompt": "(да) (гора, озеро)", "answer": "Да, это гора."}, {"prompt": "(нет) (гора, озеро)", "answer": "Нет, это не озеро."}, {"prompt": "(но) (гора, озеро)", "answer": "Да, это гора, но это не озеро."}, {"prompt": "(и) (гора, озеро)", "answer": "Гора и озеро."}, {"prompt": "(а) (гора, озеро)", "answer": "Это гора, а это озеро."}, {"prompt": "(да) (утро, вечер)", "answer": "Да, это утро."}, {"prompt": "(нет) (утро, вечер)", "answer": "Нет, это не вечер."}, {"prompt": "(но) (утро, вечер)", "answer": "Да, это утро, но это не вечер."}, {"prompt": "(и) (утро, вечер)", "answer": "Утро и вечер."}, {"prompt": "(а) (утро, вечер)", "answer": "Это утро, а это вечер."}, {"prompt": "(да) (день, ночь)", "answer": "Да, это день."}, {"prompt": "(нет) (день, ночь)", "answer": "Нет, это не ночь."}, {"prompt": "(но) (день, ночь)", "answer": "Да, это день, но это не ночь."}, {"prompt": "(и) (день, ночь)", "answer": "День и ночь."}, {"prompt": "(а) (день, ночь)", "answer": "Это день, а это ночь."}, {"prompt": "(да) (сын, дочь)", "answer": "Да, это сын."}, {"prompt": "(нет) (сын, дочь)", "answer": "Нет, это не дочь."}, {"prompt": "(но) (сын, дочь)", "answer": "Да, это сын, но это не дочь."}, {"prompt": "(и) (сын, дочь)", "answer": "Сын и дочь."}, {"prompt": "(а) (сын, дочь)", "answer": "Это сын, а это дочь."}, {"prompt": "(да) (жена, муж)", "answer": "Да, это жена."}, {"prompt": "(нет) (жена, муж)", "answer": "Нет, это не муж."}, {"prompt": "(но) (жена, муж)", "answer": "Да, это жена, но это не муж."}, {"prompt": "(и) (жена, муж)", "answer": "Жена и муж."}, {"prompt": "(а) (жена, муж)", "answer": "Это жена, а это муж."}, {"prompt": "(да) (завтрак, ужин)", "answer": "Да, это завтрак."}, {"prompt": "(нет) (завтрак, ужин)", "answer": "Нет, это не ужин."}, {"prompt": "(но) (завтрак, ужин)", "answer": "Да, это завтрак, но это не ужин."}, {"prompt": "(и) (завтрак, ужин)", "answer": "Завтрак и ужин."}, {"prompt": "(а) (завтрак, ужин)", "answer": "Это завтрак, а это ужин."}, {"prompt": "(да) (гроза, буря)", "answer": "Да, это гроза."}, {"prompt": "(нет) (гроза, буря)", "answer": "Нет, это не буря."}, {"prompt": "(но) (гроза, буря)", "answer": "Да, это гроза, но это не буря."}, {"prompt": "(и) (гроза, буря)", "answer": "Гроза и буря."}, {"prompt": "(а) (гроза, буря)", "answer": "Это гроза, а это буря."}]}]};
+const STORAGE_KEY = "guli_book1_lesson" + LESSON.id + "_progress";
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+
+function normalize(s) {
+  return s.toLowerCase().replace(/ё/g,"е").replace(/[.,!?;:"'()«»]/g,"").replace(/\s+/g," ").trim();
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("vocab-count").textContent = LESSON.vocab.length;
+document.getElementById("vocab-body").innerHTML = LESSON.vocab.map((r,i) =>
+  `<tr><td>${i+1}</td><td>${r[0]}</td><td class="uz">${r[1]}</td></tr>`
+).join("");
+
+function buildItemsHTML(items, keyPrefix, isSelfCheck) {
+  return items.map((item, i) => {
+    const key = keyPrefix + "_" + i;
+    const isDone = !!progress[key];
+    return `
+    <div class="task-item" data-key="${key}">
+      <div class="task-prompt"><b>${i+1}.</b> ${item.prompt}</div>
+      <div class="task-row">
+        <input type="text" class="task-input ${isDone?'correct':''}" placeholder="Введите ответ..." ${isDone?'disabled':''} value="${isDone&&!isSelfCheck?item.answer:''}">
+        <button class="btn check-btn" ${isDone?'disabled':''}>${isSelfCheck ? 'Показать ответ' : 'Проверить'}</button>
+        <span class="feedback ${isDone?'ok':''}">${isDone?'✓':''}</span>
+      </div>
+      <div class="reveal">Ответ: ${item.answer}</div>
+    </div>`;
+  }).join("");
+}
+
+function attachHandlers(container, items, keyPrefix, isSelfCheck, onDone) {
+  container.querySelectorAll(".task-item").forEach((itemEl, idx) => {
+    const input = itemEl.querySelector(".task-input");
+    const btn = itemEl.querySelector(".check-btn");
+    const feedback = itemEl.querySelector(".feedback");
+    const reveal = itemEl.querySelector(".reveal");
+    const item = items[idx];
+    const key = keyPrefix + "_" + idx;
+
+    function submit() {
+      if (isSelfCheck) {
+        reveal.style.display = "block";
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+        return;
+      }
+      const val = input.value.trim();
+      if (!val) return;
+      if (normalize(val) === normalize(item.answer)) {
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.classList.add("correct"); input.classList.remove("wrong");
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+      } else {
+        feedback.textContent = "✗"; feedback.className = "feedback bad";
+        input.classList.add("wrong"); input.classList.remove("correct");
+        reveal.style.display = "block";
+      }
+    }
+    btn.addEventListener("click", submit);
+    input.addEventListener("keydown", e => { if (e.key==="Enter") submit(); });
+  });
+}
+
+function renderSection(container, sections, keyBase) {
+  sections.forEach((task, ti) => {
+    const block = document.createElement("div");
+    block.className = "card task-block";
+    block.innerHTML = `
+      <h3>${task.title}</h3>
+      <p class="instr">${task.instruction}</p>
+      <div class="progress-summary">
+        <div class="progress-bar"><div class="progress-fill" id="${keyBase}${ti}-fill"></div></div>
+        <div class="progress-text" id="${keyBase}${ti}-text">0/${task.items.length}</div>
+      </div>
+      <div class="items" id="${keyBase}${ti}-items"></div>
+    `;
+    container.appendChild(block);
+    const itemsEl = block.querySelector(".items");
+    const prefix = keyBase + ti;
+    itemsEl.innerHTML = buildItemsHTML(task.items, prefix, !!task.selfCheck);
+    function updateProg() {
+      const total = task.items.length;
+      const done = task.items.filter((_, i) => progress[prefix+"_"+i]).length;
+      document.getElementById(`${prefix}-fill`).style.width = (done/total*100)+"%";
+      document.getElementById(`${prefix}-text`).textContent = done+"/"+total;
+    }
+    attachHandlers(itemsEl, task.items, prefix, !!task.selfCheck, updateProg);
+    updateProg();
+  });
+}
+
+renderSection(document.getElementById("tasks-container"), LESSON.tasks, "task");
+renderSection(document.getElementById("homework-container"), LESSON.homework_sections, "hw");
+</script>
+</body>
+</html>

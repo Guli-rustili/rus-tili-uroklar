@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 7 | Guli Rus tili</title>
+<style>
+  :root {
+    --purple: #7c3aed; --purple-dark: #5b21b6; --purple-light: #f3ecfd;
+    --bg: #faf8ff; --text: #201533; --gray: #6b6478; --green: #15803d; --red: #b91c1c;
+    --border: #e6ddf5;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height:1.55; }
+  header { background: linear-gradient(135deg, var(--purple), var(--purple-dark)); color: white; padding: 22px 18px 26px; }
+  header .eyebrow { font-size: 0.8rem; opacity: 0.85; margin: 0 0 4px; }
+  header h1 { margin: 0; font-size: 1.2rem; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 60px; }
+  .tabs { display:flex; gap:8px; margin: -14px 0 20px; position: relative; z-index: 2; flex-wrap:wrap; }
+  .tab-btn { flex:1; min-width:100px; background: white; border: 1px solid var(--border); padding: 10px 6px; border-radius: 10px; font-size: 0.85rem; font-weight:600; color: var(--purple-dark); cursor:pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.08); }
+  .tab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 20px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--purple-dark); }
+  table.vocab { width:100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.vocab th { background: var(--purple-light); text-align:left; padding: 7px 8px; }
+  table.vocab td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.vocab td.uz { color: var(--gray); }
+  .task-block { margin-bottom: 26px; }
+  .task-block h3 { font-size: 0.98rem; color: var(--purple-dark); margin: 0 0 4px; }
+  .task-block .instr { font-size: 0.85rem; color: var(--gray); margin: 0 0 10px; }
+  .progress-summary { display:flex; align-items:center; gap:10px; margin-bottom: 12px; }
+  .progress-bar { flex:1; height: 8px; background: var(--purple-light); border-radius: 5px; overflow:hidden; }
+  .progress-fill { height:100%; background: var(--purple); width:0%; transition: width .3s; }
+  .progress-text { font-size: 0.8rem; color: var(--gray); white-space:nowrap; }
+  .task-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .task-item:last-child { border-bottom:none; }
+  .task-prompt { margin-bottom: 6px; font-size: 0.93rem; }
+  .task-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .task-input { flex:1; min-width: 140px; padding: 8px 10px; border:1px solid var(--border); border-radius: 8px; font-size: 0.92rem; }
+  .task-input.correct { border-color: var(--green); background:#f0fdf4; }
+  .task-input.wrong { border-color: var(--red); background:#fef2f2; }
+  .btn { padding: 8px 14px; background: var(--purple); color:white; border:none; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; }
+  .btn:hover { background: var(--purple-dark); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .feedback { font-size: 0.82rem; font-weight:600; min-width: 60px; }
+  .feedback.ok { color: var(--green); }
+  .feedback.bad { color: var(--red); }
+  .reveal { font-size: 0.8rem; color: var(--gray); margin-top:4px; display:none; }
+  footer { text-align:center; color:var(--gray); font-size:0.75rem; padding:10px 20px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">Guli | Rus tili — Книга 1</p>
+  <h1>Урок 7. Наречия состояния: Мне... (Как?), было/будет</h1>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="vocab">📖 Словарь</button>
+    <button class="tab-btn" data-tab="tasks">✏️ Задания</button>
+    <button class="tab-btn" data-tab="homework">🏠 Дом. задание</button>
+  </div>
+
+  <div id="panel-vocab" class="panel active">
+    <div class="card">
+      <h2>Слова урока (<span id="vocab-count"></span>)</h2>
+      <table class="vocab"><thead><tr><th>№</th><th>Русский</th><th>O'zbekcha</th></tr></thead>
+      <tbody id="vocab-body"></tbody></table>
+    </div>
+  </div>
+
+  <div id="panel-tasks" class="panel">
+    <div id="tasks-container"></div>
+  </div>
+
+  <div id="panel-homework" class="panel">
+    <div id="homework-container"></div>
+  </div>
+</div>
+<footer>Guli | Rus tili — прогресс сохраняется локально в этом браузере</footer>
+
+<script>
+const LESSON = {"id": 7, "title": "Наречия состояния: Мне... (Как?), было/будет", "vocab": [["хорошо", "yaxshi"], ["плохо", "yomon"], ["страшно", "qo'rqinchli"], ["грустно", "g'amgin"], ["трудно", "qiyin"], ["легко", "oson"], ["весело", "quvnoq"], ["скучно", "zerikarli"], ["интересно", "qiziqarli"], ["холодно", "sovuq"], ["жарко", "issiq"], ["тепло", "iliq"], ["прохладно", "salqin"], ["душно", "dim"], ["сыро", "nam"], ["темно", "qorong'i"], ["светло", "yorug'"], ["тихо", "jim"], ["шумно", "shovqinli"], ["тесно", "tor"], ["просторно", "keng"], ["удобно", "qulay"], ["неудобно", "noqulay"], ["больно", "og'riqli"], ["приятно", "yoqimli"], ["неприятно", "yoqimsiz"], ["тяжело", "og'ir"], ["сложно", "murakkab"], ["просто", "oson"], ["стыдно", "uyat"], ["обидно", "alam qiladi"], ["жалко", "achinarli"], ["смешно", "kulgili"], ["тревожно", "xavotirli"], ["спокойно", "tinch"], ["неловко", "noqulay (qiyin ahvolda)"], ["одиноко", "yolg'iz"], ["радостно", "quvonchli"], ["тоскливо", "sog'inchli"], ["противно", "jirkanch"], ["любопытно", "qiziq"], ["досадно", "achinarli"], ["совестно", "vijdon azobi"], ["волнительно", "hayajonli"], ["понятно", "tushunarli"], ["непонятно", "tushunarsiz"], ["ясно", "ravshan"], ["неясно", "noaniq"], ["знакомо", "tanish"], ["незнакомо", "notanish"], ["важно", "muhim"], ["безразлично", "befarq"], ["голодно", "och"], ["дурно", "bosh aylanadi"], ["тошно", "ko'ngil ayniydi"], ["быстро", "tez"], ["медленно", "sekin"], ["громко", "baland ovozda"], ["красиво", "chiroyli"], ["некрасиво", "xunuk"], ["чисто", "toza"], ["грязно", "iflos"], ["аккуратно", "ozoda"], ["ярко", "yorqin"], ["близко", "yaqin"], ["далеко", "uzoq"], ["высоко", "baland"], ["низко", "past"], ["широко", "keng"], ["узко", "tor"], ["длинно", "uzun"], ["коротко", "qisqa"], ["давно", "ancha oldin"], ["недавно", "yaqinda"], ["рано", "erta"], ["поздно", "kech"], ["всегда", "doim"], ["иногда", "ba'zan"], ["никогда", "hech qachon"], ["часто", "tez-tez"], ["редко", "kamdan-kam"], ["снова", "yana"], ["опять", "yana"], ["уже", "allaqachon"], ["ещё", "hali"], ["сейчас", "hozir"], ["потом", "keyin"], ["вместе", "birga"], ["отдельно", "alohida"], ["вежливо", "odobli"], ["честно", "halol"], ["смело", "jasurona"], ["гордо", "mag'rurona"], ["щедро", "saxiylik bilan"], ["жадно", "baxillik bilan"], ["дорого", "qimmat"], ["дёшево", "arzon"], ["точно", "aniq"], ["вдруг", "to'satdan"], ["очень", "juda"]], "tasks": [{"title": "Задание 1", "instruction": "Savolga ikki xil javob bering: «да» va «нет».", "items": [{"prompt": "Тебе скучно? (да)", "answer": "Да, тебе скучно."}, {"prompt": "Тебе скучно? (нет)", "answer": "Нет, тебе не скучно."}, {"prompt": "Ему интересно? (да)", "answer": "Да, ему интересно."}, {"prompt": "Ему интересно? (нет)", "answer": "Нет, ему не интересно."}, {"prompt": "Ей страшно? (да)", "answer": "Да, ей страшно."}, {"prompt": "Ей страшно? (нет)", "answer": "Нет, ей не страшно."}, {"prompt": "Нам холодно? (да)", "answer": "Да, нам холодно."}, {"prompt": "Нам холодно? (нет)", "answer": "Нет, нам не холодно."}, {"prompt": "Вам жарко? (да)", "answer": "Да, вам жарко."}, {"prompt": "Вам жарко? (нет)", "answer": "Нет, вам не жарко."}, {"prompt": "Им весело? (да)", "answer": "Да, им весело."}, {"prompt": "Им весело? (нет)", "answer": "Нет, им не весело."}, {"prompt": "Тебе трудно? (да)", "answer": "Да, тебе трудно."}, {"prompt": "Тебе трудно? (нет)", "answer": "Нет, тебе не трудно."}, {"prompt": "Ему легко? (да)", "answer": "Да, ему легко."}, {"prompt": "Ему легко? (нет)", "answer": "Нет, ему не легко."}, {"prompt": "Ей стыдно? (да)", "answer": "Да, ей стыдно."}, {"prompt": "Ей стыдно? (нет)", "answer": "Нет, ей не стыдно."}, {"prompt": "Нам удобно? (да)", "answer": "Да, нам удобно."}, {"prompt": "Нам удобно? (нет)", "answer": "Нет, нам не удобно."}, {"prompt": "Вам приятно? (да)", "answer": "Да, вам приятно."}, {"prompt": "Вам приятно? (нет)", "answer": "Нет, вам не приятно."}, {"prompt": "Им спокойно? (да)", "answer": "Да, им спокойно."}, {"prompt": "Им спокойно? (нет)", "answer": "Нет, им не спокойно."}, {"prompt": "Тебе грустно? (да)", "answer": "Да, тебе грустно."}, {"prompt": "Тебе грустно? (нет)", "answer": "Нет, тебе не грустно."}, {"prompt": "Ему хорошо? (да)", "answer": "Да, ему хорошо."}, {"prompt": "Ему хорошо? (нет)", "answer": "Нет, ему не хорошо."}, {"prompt": "Ей интересно? (да)", "answer": "Да, ей интересно."}, {"prompt": "Ей интересно? (нет)", "answer": "Нет, ей не интересно."}]}, {"title": "Задание 2", "instruction": "Namunaga qarab, o'tgan zamon (было) shaklida gap tuzing.", "items": [{"prompt": "(мне, скучно)", "answer": "Мне было скучно."}, {"prompt": "(тебе, интересно)", "answer": "Тебе было интересно."}, {"prompt": "(ему, страшно)", "answer": "Ему было страшно."}, {"prompt": "(ей, холодно)", "answer": "Ей было холодно."}, {"prompt": "(нам, весело)", "answer": "Нам было весело."}, {"prompt": "(вам, удобно)", "answer": "Вам было удобно."}, {"prompt": "(им, стыдно)", "answer": "Им было стыдно."}, {"prompt": "(мне, легко)", "answer": "Мне было легко."}, {"prompt": "(тебе, приятно)", "answer": "Тебе было приятно."}, {"prompt": "(ему, спокойно)", "answer": "Ему было спокойно."}, {"prompt": "(ей, грустно)", "answer": "Ей было грустно."}, {"prompt": "(нам, тепло)", "answer": "Нам было тепло."}, {"prompt": "(вам, важно)", "answer": "Вам было важно."}, {"prompt": "(им, известно)", "answer": "Им было известно."}, {"prompt": "(мне, хорошо)", "answer": "Мне было хорошо."}]}, {"title": "Задание 3", "instruction": "Namunaga qarab, kelasi zamon (будет) shaklida gap tuzing.", "items": [{"prompt": "(тебе, интересно)", "answer": "Тебе будет интересно."}, {"prompt": "(ему, трудно)", "answer": "Ему будет трудно."}, {"prompt": "(ей, легко)", "answer": "Ей будет легко."}, {"prompt": "(нам, холодно)", "answer": "Нам будет холодно."}, {"prompt": "(вам, удобно)", "answer": "Вам будет удобно."}, {"prompt": "(им, страшно)", "answer": "Им будет страшно."}, {"prompt": "(мне, весело)", "answer": "Мне будет весело."}, {"prompt": "(тебе, скучно)", "answer": "Тебе будет скучно."}, {"prompt": "(ему, приятно)", "answer": "Ему будет приятно."}, {"prompt": "(ей, важно)", "answer": "Ей будет важно."}, {"prompt": "(нам, известно)", "answer": "Нам будет известно."}, {"prompt": "(вам, спокойно)", "answer": "Вам будет спокойно."}, {"prompt": "(им, тепло)", "answer": "Им будет тепло."}, {"prompt": "(мне, стыдно)", "answer": "Мне будет стыдно."}, {"prompt": "(тебе, хорошо)", "answer": "Тебе будет хорошо."}]}], "homework_sections": [{"title": "Домашнее задание", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Menga zerikarli.", "answer": "Мне скучно."}, {"prompt": "Men zerikyapman.", "answer": "Мне скучно."}, {"prompt": "Senga qiziqarli.", "answer": "Тебе интересно."}, {"prompt": "Unga (u aka) yaxshi.", "answer": "Ему хорошо."}, {"prompt": "Unga (u opa) yomon.", "answer": "Ей плохо."}, {"prompt": "Bizga sovuq.", "answer": "Нам холодно."}, {"prompt": "Sizga issiq.", "answer": "Вам жарко."}, {"prompt": "Ularga qulay.", "answer": "Им удобно."}, {"prompt": "Menga qiyin edi.", "answer": "Мне было трудно."}, {"prompt": "Senga oson edi.", "answer": "Тебе было легко."}, {"prompt": "Unga (u aka) qo'rqinchli edi.", "answer": "Ему было страшно."}, {"prompt": "Bizga qiziqarli edi.", "answer": "Нам было интересно."}, {"prompt": "Sizga noqulay edi.", "answer": "Вам было неудобно."}, {"prompt": "Ularga zerikarli edi.", "answer": "Им было скучно."}, {"prompt": "Menga qiziqarli bo'ladi.", "answer": "Мне будет интересно."}, {"prompt": "Senga qiyin bo'ladi.", "answer": "Тебе будет трудно."}, {"prompt": "Unga (u aka) yaxshi bo'ladi.", "answer": "Ему будет хорошо."}, {"prompt": "Bizga sovuq bo'ladi.", "answer": "Нам будет холодно."}, {"prompt": "Sizga qulay bo'ladi.", "answer": "Вам будет удобно."}, {"prompt": "Ularga qo'rqinchli bo'ladi.", "answer": "Им будет страшно."}, {"prompt": "Menga g'amgin.", "answer": "Мне грустно."}, {"prompt": "Senga uyat.", "answer": "Тебе стыдно."}, {"prompt": "Unga (u aka) alam qiladi.", "answer": "Ему обидно."}, {"prompt": "Bizga achinarli.", "answer": "Нам жаль."}, {"prompt": "Sizga kulgili.", "answer": "Вам смешно."}, {"prompt": "Ularga tinch.", "answer": "Им спокойно."}, {"prompt": "Menga tushunarli emas edi.", "answer": "Мне было непонятно."}, {"prompt": "Senga ma'lum bo'ladi.", "answer": "Тебе будет известно."}, {"prompt": "Unga (u opa) yolg'iz.", "answer": "Ей одиноко."}, {"prompt": "Menga hozir yaxshi.", "answer": "Мне сейчас хорошо."}]}]};
+const STORAGE_KEY = "guli_book1_lesson" + LESSON.id + "_progress";
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+
+function normalize(s) {
+  return s.toLowerCase().replace(/ё/g,"е").replace(/[.,!?;:"'()«»]/g,"").replace(/\s+/g," ").trim();
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("vocab-count").textContent = LESSON.vocab.length;
+document.getElementById("vocab-body").innerHTML = LESSON.vocab.map((r,i) =>
+  `<tr><td>${i+1}</td><td>${r[0]}</td><td class="uz">${r[1]}</td></tr>`
+).join("");
+
+function buildItemsHTML(items, keyPrefix, isSelfCheck) {
+  return items.map((item, i) => {
+    const key = keyPrefix + "_" + i;
+    const isDone = !!progress[key];
+    return `
+    <div class="task-item" data-key="${key}">
+      <div class="task-prompt"><b>${i+1}.</b> ${item.prompt}</div>
+      <div class="task-row">
+        <input type="text" class="task-input ${isDone?'correct':''}" placeholder="Введите ответ..." ${isDone?'disabled':''} value="${isDone&&!isSelfCheck?item.answer:''}">
+        <button class="btn check-btn" ${isDone?'disabled':''}>${isSelfCheck ? 'Показать ответ' : 'Проверить'}</button>
+        <span class="feedback ${isDone?'ok':''}">${isDone?'✓':''}</span>
+      </div>
+      <div class="reveal">Ответ: ${item.answer}</div>
+    </div>`;
+  }).join("");
+}
+
+function attachHandlers(container, items, keyPrefix, isSelfCheck, onDone) {
+  container.querySelectorAll(".task-item").forEach((itemEl, idx) => {
+    const input = itemEl.querySelector(".task-input");
+    const btn = itemEl.querySelector(".check-btn");
+    const feedback = itemEl.querySelector(".feedback");
+    const reveal = itemEl.querySelector(".reveal");
+    const item = items[idx];
+    const key = keyPrefix + "_" + idx;
+
+    function submit() {
+      if (isSelfCheck) {
+        reveal.style.display = "block";
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+        return;
+      }
+      const val = input.value.trim();
+      if (!val) return;
+      if (normalize(val) === normalize(item.answer)) {
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.classList.add("correct"); input.classList.remove("wrong");
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+      } else {
+        feedback.textContent = "✗"; feedback.className = "feedback bad";
+        input.classList.add("wrong"); input.classList.remove("correct");
+        reveal.style.display = "block";
+      }
+    }
+    btn.addEventListener("click", submit);
+    input.addEventListener("keydown", e => { if (e.key==="Enter") submit(); });
+  });
+}
+
+function renderSection(container, sections, keyBase) {
+  sections.forEach((task, ti) => {
+    const block = document.createElement("div");
+    block.className = "card task-block";
+    block.innerHTML = `
+      <h3>${task.title}</h3>
+      <p class="instr">${task.instruction}</p>
+      <div class="progress-summary">
+        <div class="progress-bar"><div class="progress-fill" id="${keyBase}${ti}-fill"></div></div>
+        <div class="progress-text" id="${keyBase}${ti}-text">0/${task.items.length}</div>
+      </div>
+      <div class="items" id="${keyBase}${ti}-items"></div>
+    `;
+    container.appendChild(block);
+    const itemsEl = block.querySelector(".items");
+    const prefix = keyBase + ti;
+    itemsEl.innerHTML = buildItemsHTML(task.items, prefix, !!task.selfCheck);
+    function updateProg() {
+      const total = task.items.length;
+      const done = task.items.filter((_, i) => progress[prefix+"_"+i]).length;
+      document.getElementById(`${prefix}-fill`).style.width = (done/total*100)+"%";
+      document.getElementById(`${prefix}-text`).textContent = done+"/"+total;
+    }
+    attachHandlers(itemsEl, task.items, prefix, !!task.selfCheck, updateProg);
+    updateProg();
+  });
+}
+
+renderSection(document.getElementById("tasks-container"), LESSON.tasks, "task");
+renderSection(document.getElementById("homework-container"), LESSON.homework_sections, "hw");
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 4 | Guli Rus tili</title>
+<style>
+  :root {
+    --purple: #7c3aed; --purple-dark: #5b21b6; --purple-light: #f3ecfd;
+    --bg: #faf8ff; --text: #201533; --gray: #6b6478; --green: #15803d; --red: #b91c1c;
+    --border: #e6ddf5;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height:1.55; }
+  header { background: linear-gradient(135deg, var(--purple), var(--purple-dark)); color: white; padding: 22px 18px 26px; }
+  header .eyebrow { font-size: 0.8rem; opacity: 0.85; margin: 0 0 4px; }
+  header h1 { margin: 0; font-size: 1.2rem; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 60px; }
+  .tabs { display:flex; gap:8px; margin: -14px 0 20px; position: relative; z-index: 2; flex-wrap:wrap; }
+  .tab-btn { flex:1; min-width:100px; background: white; border: 1px solid var(--border); padding: 10px 6px; border-radius: 10px; font-size: 0.85rem; font-weight:600; color: var(--purple-dark); cursor:pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.08); }
+  .tab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 20px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--purple-dark); }
+  table.vocab { width:100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.vocab th { background: var(--purple-light); text-align:left; padding: 7px 8px; }
+  table.vocab td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.vocab td.uz { color: var(--gray); }
+  .task-block { margin-bottom: 26px; }
+  .task-block h3 { font-size: 0.98rem; color: var(--purple-dark); margin: 0 0 4px; }
+  .task-block .instr { font-size: 0.85rem; color: var(--gray); margin: 0 0 10px; }
+  .progress-summary { display:flex; align-items:center; gap:10px; margin-bottom: 12px; }
+  .progress-bar { flex:1; height: 8px; background: var(--purple-light); border-radius: 5px; overflow:hidden; }
+  .progress-fill { height:100%; background: var(--purple); width:0%; transition: width .3s; }
+  .progress-text { font-size: 0.8rem; color: var(--gray); white-space:nowrap; }
+  .task-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .task-item:last-child { border-bottom:none; }
+  .task-prompt { margin-bottom: 6px; font-size: 0.93rem; }
+  .task-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .task-input { flex:1; min-width: 140px; padding: 8px 10px; border:1px solid var(--border); border-radius: 8px; font-size: 0.92rem; }
+  .task-input.correct { border-color: var(--green); background:#f0fdf4; }
+  .task-input.wrong { border-color: var(--red); background:#fef2f2; }
+  .btn { padding: 8px 14px; background: var(--purple); color:white; border:none; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; }
+  .btn:hover { background: var(--purple-dark); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .feedback { font-size: 0.82rem; font-weight:600; min-width: 60px; }
+  .feedback.ok { color: var(--green); }
+  .feedback.bad { color: var(--red); }
+  .reveal { font-size: 0.8rem; color: var(--gray); margin-top:4px; display:none; }
+  footer { text-align:center; color:var(--gray); font-size:0.75rem; padding:10px 20px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">Guli | Rus tili — Книга 1</p>
+  <h1>Урок 4. Притяжательные местоимения (чей/мой/твой/наш/ваш/его/её/их)</h1>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="vocab">📖 Словарь</button>
+    <button class="tab-btn" data-tab="tasks">✏️ Задания</button>
+    <button class="tab-btn" data-tab="homework">🏠 Дом. задание</button>
+  </div>
+
+  <div id="panel-vocab" class="panel active">
+    <div class="card">
+      <h2>Слова урока (<span id="vocab-count"></span>)</h2>
+      <table class="vocab"><thead><tr><th>№</th><th>Русский</th><th>O'zbekcha</th></tr></thead>
+      <tbody id="vocab-body"></tbody></table>
+    </div>
+  </div>
+
+  <div id="panel-tasks" class="panel">
+    <div id="tasks-container"></div>
+  </div>
+
+  <div id="panel-homework" class="panel">
+    <div id="homework-container"></div>
+  </div>
+</div>
+<footer>Guli | Rus tili — прогресс сохраняется локально в этом браузере</footer>
+
+<script>
+const LESSON = {"id": 4, "title": "Притяжательные местоимения (чей/мой/твой/наш/ваш/его/её/их)", "vocab": [["кошка", "mushuk"], ["собака", "it"], ["птица", "qush"], ["мышь", "sichqon"], ["змея", "ilon"], ["паук", "o'rgimchak"], ["пчела", "asalari"], ["муравей", "chumoli"], ["бабочка", "kapalak"], ["лягушка", "qurbaqa"], ["молоток", "bolg'a"], ["гвоздь", "mix"], ["пила", "arra"], ["топор", "bolta"], ["верёвка", "arqon"], ["ведро", "chelak"], ["лопата", "kurak"], ["кисть", "cho'tka"], ["клей", "yelim"], ["нож", "pichoq"], ["остров", "orol"], ["скала", "qoya"], ["водопад", "sharshara"], ["пещера", "g'or"], ["поле", "dala"], ["холм", "tepalik"], ["долина", "vodiy"], ["берег", "qirg'oq"], ["залив", "ko'rfaz"], ["полуостров", "yarim orol"], ["красота", "go'zallik"], ["сила", "kuch"], ["слабость", "zaiflik"], ["правда", "haqiqat"], ["ложь", "yolg'on"], ["тишина", "sukunat"], ["шум", "shovqin"], ["свобода", "erkinlik"], ["мир", "tinchlik"], ["война", "urush"], ["огурец", "bodring"], ["перец", "qalampir"], ["яблоко", "olma"], ["груша", "nok"], ["виноград", "uzum"], ["дыня", "qovun"], ["орех", "yong'oq"], ["ягода", "mevacha"], ["слива", "olxo'ri"], ["персик", "shaftoli"], ["Как дела?", "Ishlar qalay?"], ["Что нового?", "Nima gap?"], ["Сколько это стоит?", "Bu qancha turadi?"], ["Который час?", "Soat necha?"], ["Где находится...?", "...qayerda joylashgan?"], ["Я не понимаю", "Men tushunmayapman"], ["Повторите, пожалуйста", "Iltimos, takrorlang"], ["Говорите медленнее, пожалуйста", "Iltimos, sekinroq gapiring"], ["Как это называется?", "Bu nima deb ataladi?"], ["Мне нужно...", "Menga ... kerak"], ["Я хочу...", "Men ... xohlayman"], ["Дайте, пожалуйста", "Iltimos, bering"], ["Покажите, пожалуйста", "Iltimos, ko'rsating"], ["Помогите, пожалуйста", "Iltimos, yordam bering"], ["Не знаю", "Bilmayman"], ["Конечно", "Albatta"], ["Может быть", "Balki"], ["Без проблем", "Muammo yo'q"], ["Как обычно", "Har doimgidek"], ["Всё в порядке", "Hammasi joyida"], ["Не важно", "Muhim emas"], ["Так себе", "O'rtacha"], ["Ничего страшного", "Hechqisi yo'q"], ["Очень приятно", "Juda xursandman"], ["До скорого", "Tez orada ko'rishguncha"], ["Увидимся", "Ko'rishamiz"], ["Берегите себя", "O'zingizga yaxshi qarang"], ["Удачи", "Omad"], ["Поздравляю", "Tabriklayman"], ["Желаю успехов", "Muvaffaqiyat tilayman"], ["Как поживаете?", "Qalaysiz?"], ["Что случилось?", "Nima bo'ldi?"], ["В чём дело?", "Gap nimada?"], ["Подождите, пожалуйста", "Iltimos, kuting"], ["Одну минуту", "Bir daqiqa"], ["Я согласен", "Men roziman"], ["Я не согласен", "Men rozi emasman"], ["Хорошая идея", "Yaxshi fikr"], ["Плохая идея", "Yomon fikr"], ["Мне всё равно", "Menga farqi yo'q"], ["Договорились", "Kelishdik"], ["Именно так", "Aynan shunday"], ["Ни в коем случае", "Hech qanday holatda"], ["Как скажешь", "Qanday desang"], ["Без разницы", "Farqi yo'q"], ["Я тоже", "Men ham"], ["Я не уверен", "Aniq bilmayman"], ["Точно", "Aniq"], ["Вот именно", "Xuddi shunday"], ["Как всегда", "Har doimgidek"]], "tasks": [{"title": "Задание 1", "instruction": "So'zga qarab «чей / чья / чьё / чьи» so'zini qo'ying.", "items": [{"prompt": "гость — ?", "answer": "чей гость?"}, {"prompt": "магазин — ?", "answer": "чей магазин?"}, {"prompt": "подарок — ?", "answer": "чей подарок?"}, {"prompt": "учебник — ?", "answer": "чей учебник?"}, {"prompt": "подушка — ?", "answer": "чья подушка?"}, {"prompt": "кухня — ?", "answer": "чья кухня?"}, {"prompt": "тетрадь — ?", "answer": "чья тетрадь?"}, {"prompt": "свеча — ?", "answer": "чья свеча?"}, {"prompt": "окно — ?", "answer": "чьё окно?"}, {"prompt": "письмо — ?", "answer": "чьё письмо?"}, {"prompt": "счастье — ?", "answer": "чьё счастье?"}, {"prompt": "яйцо — ?", "answer": "чьё яйцо?"}, {"prompt": "врачи — ?", "answer": "чьи врачи?"}, {"prompt": "тетради — ?", "answer": "чьи тетради?"}, {"prompt": "письма — ?", "answer": "чьи письма?"}, {"prompt": "ключи — ?", "answer": "чьи ключи?"}]}, {"title": "Задание 2", "instruction": "So'zga qarab «мой / моя / моё / мои» so'zini qo'ying.", "items": [{"prompt": "сосед — ?", "answer": "мой сосед."}, {"prompt": "парк — ?", "answer": "мой парк."}, {"prompt": "врач — ?", "answer": "мой врач."}, {"prompt": "ключ — ?", "answer": "мой ключ."}, {"prompt": "комната — ?", "answer": "моя комната."}, {"prompt": "звезда — ?", "answer": "моя звезда."}, {"prompt": "дорога — ?", "answer": "моя дорога."}, {"prompt": "встреча — ?", "answer": "моя встреча."}, {"prompt": "утро — ?", "answer": "моё утро."}, {"prompt": "зеркало — ?", "answer": "моё зеркало."}, {"prompt": "время — ?", "answer": "моё время."}, {"prompt": "лекарство — ?", "answer": "моё лекарство."}, {"prompt": "парки — ?", "answer": "мои парки."}, {"prompt": "школы — ?", "answer": "мои школы."}, {"prompt": "кухни — ?", "answer": "мои кухни."}, {"prompt": "минуты — ?", "answer": "мои минуты."}]}, {"title": "Задание 3", "instruction": "So'zga qarab «твой / твоя / твоё / твои» so'zini qo'ying.", "items": [{"prompt": "карандаш — ?", "answer": "твой карандаш."}, {"prompt": "рынок — ?", "answer": "твой рынок."}, {"prompt": "мост — ?", "answer": "твой мост."}, {"prompt": "учитель — ?", "answer": "твой учитель."}, {"prompt": "школа — ?", "answer": "твоя школа."}, {"prompt": "доска — ?", "answer": "твоя доска."}, {"prompt": "тарелка — ?", "answer": "твоя тарелка."}, {"prompt": "работа — ?", "answer": "твоя работа."}, {"prompt": "небо — ?", "answer": "твоё небо."}, {"prompt": "полотенце — ?", "answer": "твоё полотенце."}, {"prompt": "удивление — ?", "answer": "твоё удивление."}, {"prompt": "масло — ?", "answer": "твоё масло."}, {"prompt": "рынки — ?", "answer": "твои рынки."}, {"prompt": "мосты — ?", "answer": "твои мосты."}, {"prompt": "гости — ?", "answer": "твои гости."}, {"prompt": "малыши — ?", "answer": "твои малыши."}]}, {"title": "Задание 4", "instruction": "So'zga qarab «ваш / ваша / ваше / ваши» so'zini qo'ying.", "items": [{"prompt": "инженер — ?", "answer": "ваш инженер."}, {"prompt": "продавец — ?", "answer": "ваш продавец."}, {"prompt": "водитель — ?", "answer": "ваш водитель."}, {"prompt": "класс — ?", "answer": "ваш класс."}, {"prompt": "болезнь — ?", "answer": "ваша болезнь."}, {"prompt": "больница — ?", "answer": "ваша больница."}, {"prompt": "цена — ?", "answer": "ваша цена."}, {"prompt": "сумка — ?", "answer": "ваша сумка."}, {"prompt": "одеяло — ?", "answer": "ваше одеяло."}, {"prompt": "облако — ?", "answer": "ваше облако."}, {"prompt": "тепло — ?", "answer": "ваше тепло."}, {"prompt": "крыльцо — ?", "answer": "ваше крыльцо."}, {"prompt": "карандаши — ?", "answer": "ваши карандаши."}, {"prompt": "уроки — ?", "answer": "ваши уроки."}, {"prompt": "рубашки — ?", "answer": "ваши рубашки."}, {"prompt": "шапки — ?", "answer": "ваши шапки."}]}, {"title": "Задание 5", "instruction": "So'zga qarab «наш / наша / наше / наши» so'zini qo'ying.", "items": [{"prompt": "строитель — ?", "answer": "наш строитель."}, {"prompt": "повар — ?", "answer": "наш повар."}, {"prompt": "пастух — ?", "answer": "наш пастух."}, {"prompt": "урок — ?", "answer": "наш урок."}, {"prompt": "аптека — ?", "answer": "наша аптека."}, {"prompt": "остановка — ?", "answer": "наша остановка."}, {"prompt": "кастрюля — ?", "answer": "наша кастрюля."}, {"prompt": "ложка — ?", "answer": "наша ложка."}, {"prompt": "озеро — ?", "answer": "наше озеро."}, {"prompt": "дерево — ?", "answer": "наше дерево."}, {"prompt": "солнце — ?", "answer": "наше солнце."}, {"prompt": "сердце — ?", "answer": "наше сердце."}, {"prompt": "пуговицы — ?", "answer": "наши пуговицы."}, {"prompt": "стены — ?", "answer": "наши стены."}, {"prompt": "двери — ?", "answer": "наши двери."}, {"prompt": "секунды — ?", "answer": "наши секунды."}]}, {"title": "Задание 6", "instruction": "Egasiga qarab «его» yoki «её» so'zini qo'ying.", "items": [{"prompt": "(Анвар, ключ)", "answer": "его ключ."}, {"prompt": "(Дилноза, сумка)", "answer": "её сумка."}, {"prompt": "(Шерзод, документ)", "answer": "его документ."}, {"prompt": "(Мадина, справка)", "answer": "её справка."}, {"prompt": "(Отабек, подарок)", "answer": "его подарок."}, {"prompt": "(Нигора, тетрадь)", "answer": "её тетрадь."}, {"prompt": "(Жасур, кошелёк)", "answer": "его кошелёк."}, {"prompt": "(Зарина, зарплата)", "answer": "её зарплата."}, {"prompt": "(Бахтиёр, долг)", "answer": "его долг."}, {"prompt": "(Гулнора, встреча)", "answer": "её встреча."}, {"prompt": "(Фаррух, письмо)", "answer": "его письмо."}, {"prompt": "(Ситора, счёт)", "answer": "её счёт."}]}, {"title": "Задание 7", "instruction": "Berilgan so'zlarga «их» so'zini qo'ying.", "items": [{"prompt": "балкон — ?", "answer": "их балкон."}, {"prompt": "комната — ?", "answer": "их комната."}, {"prompt": "шкатулка — ?", "answer": "их шкатулка."}, {"prompt": "корзина — ?", "answer": "их корзина."}, {"prompt": "мешок — ?", "answer": "их мешок."}, {"prompt": "подвал — ?", "answer": "их подвал."}, {"prompt": "двор — ?", "answer": "их двор."}, {"prompt": "площадка — ?", "answer": "их площадка."}, {"prompt": "фонтан — ?", "answer": "их фонтан."}, {"prompt": "забор — ?", "answer": "их забор."}, {"prompt": "терраса — ?", "answer": "их терраса."}, {"prompt": "этаж — ?", "answer": "их этаж."}]}], "homework_sections": [{"title": "Домашнее задание — Чей/чья/чьё/чьи", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu kimning do'koni?", "answer": "Чей это магазин?"}, {"prompt": "Bu kimning darsi?", "answer": "Чей это урок?"}, {"prompt": "Bu kimning sotuvchisi?", "answer": "Чей это продавец?"}, {"prompt": "Bu kimning ko'prigi?", "answer": "Чей это мост?"}, {"prompt": "Bu kimning yostig'i?", "answer": "Чья это подушка?"}, {"prompt": "Bu kimning yulduzi?", "answer": "Чья это звезда?"}, {"prompt": "Bu kimning yo'li?", "answer": "Чья это дорога?"}, {"prompt": "Bu kimning kasalxonasi?", "answer": "Чья это больница?"}, {"prompt": "Bu kimning hayrati?", "answer": "Чьё это удивление?"}, {"prompt": "Bu kimning sariyog'i?", "answer": "Чьё это масло?"}, {"prompt": "Bu kimning ko'rpasi?", "answer": "Чьё это одеяло?"}, {"prompt": "Bu kimning ayvoni?", "answer": "Чьё это крыльцо?"}, {"prompt": "Bu kimning bozorlari?", "answer": "Чьи это рынки?"}, {"prompt": "Bu kimning maktablari?", "answer": "Чьи это школы?"}, {"prompt": "Bu kimning kalitlari?", "answer": "Чьи это ключи?"}]}, {"title": "Домашнее задание — Мой/моя/моё/мои", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu mening qalamim.", "answer": "Это мой карандаш."}, {"prompt": "Bu mening qo'shnim.", "answer": "Это мой сосед."}, {"prompt": "Bu mening parkim.", "answer": "Это мой парк."}, {"prompt": "Bu mening sumkam.", "answer": "Это моя сумка."}, {"prompt": "Bu mening ishim.", "answer": "Это моя работа."}, {"prompt": "Bu mening uchrashuvim.", "answer": "Это моя встреча."}, {"prompt": "Bu mening xatim.", "answer": "Это моё письмо."}, {"prompt": "Bu mening vaqtim.", "answer": "Это моё время."}, {"prompt": "Bu mening daftarlarim.", "answer": "Это мои тетради."}, {"prompt": "Bu mening kalitlarim.", "answer": "Это мои ключи."}]}, {"title": "Домашнее задание — Твой/твоя/твоё/твои", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu sening shifokoring.", "answer": "Это твой врач."}, {"prompt": "Bu sening kaliting.", "answer": "Это твой ключ."}, {"prompt": "Bu sening mehmoning.", "answer": "Это твой гость."}, {"prompt": "Bu sening shaming.", "answer": "Это твоя свеча."}, {"prompt": "Bu sening maktabing.", "answer": "Это твоя школа."}, {"prompt": "Bu sening doskang.", "answer": "Это твоя доска."}, {"prompt": "Bu sening derazang.", "answer": "Это твоё окно."}, {"prompt": "Bu sening baxting.", "answer": "Это твоё счастье."}, {"prompt": "Bu sening xatlaring.", "answer": "Это твои письма."}, {"prompt": "Bu sening parklaring.", "answer": "Это твои парки."}]}, {"title": "Домашнее задание — Ваш/ваша/ваше/ваши", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu sizning darslikingiz.", "answer": "Это ваш учебник."}, {"prompt": "Bu sizning cho'ntagingiz.", "answer": "Это ваш карман."}, {"prompt": "Bu sizning daftaringiz.", "answer": "Это ваша тетрадь."}, {"prompt": "Bu sizning narxingiz.", "answer": "Это ваша цена."}, {"prompt": "Bu sizning bulutingiz.", "answer": "Это ваше облако."}]}, {"title": "Домашнее задание — Наш/наша/наше/наши", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu bizning dahlizimiz.", "answer": "Это наш коридор."}, {"prompt": "Bu bizning bozorimiz.", "answer": "Это наш рынок."}, {"prompt": "Bu bizning dorixonamiz.", "answer": "Это наша аптека."}, {"prompt": "Bu bizning oshxonamiz.", "answer": "Это наша кухня."}, {"prompt": "Bu bizning dorimiz.", "answer": "Это наше лекарство."}]}, {"title": "Домашнее задание — Его/её", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu Anvarning kaliti.", "answer": "Это его ключ."}, {"prompt": "Bu Dilnozaning sumkasi.", "answer": "Это её сумка."}, {"prompt": "Bu Sherzodning xati.", "answer": "Это его письмо."}, {"prompt": "Bu Madinaning daftari.", "answer": "Это её тетрадь."}, {"prompt": "Bu Otabekning derazasi.", "answer": "Это его окно."}]}, {"title": "Домашнее задание — Их", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu ularning kaliti.", "answer": "Это их ключ."}, {"prompt": "Bu ularning sumkasi.", "answer": "Это их сумка."}, {"prompt": "Bu ularning xati.", "answer": "Это их письмо."}, {"prompt": "Bu ularning daftarlari.", "answer": "Это их тетради."}, {"prompt": "Bu ularning qo'shnisi.", "answer": "Это их сосед."}]}]};
+const STORAGE_KEY = "guli_book1_lesson" + LESSON.id + "_progress";
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+
+function normalize(s) {
+  return s.toLowerCase().replace(/ё/g,"е").replace(/[.,!?;:"'()«»]/g,"").replace(/\s+/g," ").trim();
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("vocab-count").textContent = LESSON.vocab.length;
+document.getElementById("vocab-body").innerHTML = LESSON.vocab.map((r,i) =>
+  `<tr><td>${i+1}</td><td>${r[0]}</td><td class="uz">${r[1]}</td></tr>`
+).join("");
+
+function buildItemsHTML(items, keyPrefix, isSelfCheck) {
+  return items.map((item, i) => {
+    const key = keyPrefix + "_" + i;
+    const isDone = !!progress[key];
+    return `
+    <div class="task-item" data-key="${key}">
+      <div class="task-prompt"><b>${i+1}.</b> ${item.prompt}</div>
+      <div class="task-row">
+        <input type="text" class="task-input ${isDone?'correct':''}" placeholder="Введите ответ..." ${isDone?'disabled':''} value="${isDone&&!isSelfCheck?item.answer:''}">
+        <button class="btn check-btn" ${isDone?'disabled':''}>${isSelfCheck ? 'Показать ответ' : 'Проверить'}</button>
+        <span class="feedback ${isDone?'ok':''}">${isDone?'✓':''}</span>
+      </div>
+      <div class="reveal">Ответ: ${item.answer}</div>
+    </div>`;
+  }).join("");
+}
+
+function attachHandlers(container, items, keyPrefix, isSelfCheck, onDone) {
+  container.querySelectorAll(".task-item").forEach((itemEl, idx) => {
+    const input = itemEl.querySelector(".task-input");
+    const btn = itemEl.querySelector(".check-btn");
+    const feedback = itemEl.querySelector(".feedback");
+    const reveal = itemEl.querySelector(".reveal");
+    const item = items[idx];
+    const key = keyPrefix + "_" + idx;
+
+    function submit() {
+      if (isSelfCheck) {
+        reveal.style.display = "block";
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+        return;
+      }
+      const val = input.value.trim();
+      if (!val) return;
+      if (normalize(val) === normalize(item.answer)) {
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.classList.add("correct"); input.classList.remove("wrong");
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+      } else {
+        feedback.textContent = "✗"; feedback.className = "feedback bad";
+        input.classList.add("wrong"); input.classList.remove("correct");
+        reveal.style.display = "block";
+      }
+    }
+    btn.addEventListener("click", submit);
+    input.addEventListener("keydown", e => { if (e.key==="Enter") submit(); });
+  });
+}
+
+function renderSection(container, sections, keyBase) {
+  sections.forEach((task, ti) => {
+    const block = document.createElement("div");
+    block.className = "card task-block";
+    block.innerHTML = `
+      <h3>${task.title}</h3>
+      <p class="instr">${task.instruction}</p>
+      <div class="progress-summary">
+        <div class="progress-bar"><div class="progress-fill" id="${keyBase}${ti}-fill"></div></div>
+        <div class="progress-text" id="${keyBase}${ti}-text">0/${task.items.length}</div>
+      </div>
+      <div class="items" id="${keyBase}${ti}-items"></div>
+    `;
+    container.appendChild(block);
+    const itemsEl = block.querySelector(".items");
+    const prefix = keyBase + ti;
+    itemsEl.innerHTML = buildItemsHTML(task.items, prefix, !!task.selfCheck);
+    function updateProg() {
+      const total = task.items.length;
+      const done = task.items.filter((_, i) => progress[prefix+"_"+i]).length;
+      document.getElementById(`${prefix}-fill`).style.width = (done/total*100)+"%";
+      document.getElementById(`${prefix}-text`).textContent = done+"/"+total;
+    }
+    attachHandlers(itemsEl, task.items, prefix, !!task.selfCheck, updateProg);
+    updateProg();
+  });
+}
+
+renderSection(document.getElementById("tasks-container"), LESSON.tasks, "task");
+renderSection(document.getElementById("homework-container"), LESSON.homework_sections, "hw");
+</script>
+</body>
+</html>

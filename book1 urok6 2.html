@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 6 | Guli Rus tili</title>
+<style>
+  :root {
+    --purple: #7c3aed; --purple-dark: #5b21b6; --purple-light: #f3ecfd;
+    --bg: #faf8ff; --text: #201533; --gray: #6b6478; --green: #15803d; --red: #b91c1c;
+    --border: #e6ddf5;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height:1.55; }
+  header { background: linear-gradient(135deg, var(--purple), var(--purple-dark)); color: white; padding: 22px 18px 26px; }
+  header .eyebrow { font-size: 0.8rem; opacity: 0.85; margin: 0 0 4px; }
+  header h1 { margin: 0; font-size: 1.2rem; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 60px; }
+  .tabs { display:flex; gap:8px; margin: -14px 0 20px; position: relative; z-index: 2; flex-wrap:wrap; }
+  .tab-btn { flex:1; min-width:100px; background: white; border: 1px solid var(--border); padding: 10px 6px; border-radius: 10px; font-size: 0.85rem; font-weight:600; color: var(--purple-dark); cursor:pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.08); }
+  .tab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 20px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--purple-dark); }
+  table.vocab { width:100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.vocab th { background: var(--purple-light); text-align:left; padding: 7px 8px; }
+  table.vocab td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.vocab td.uz { color: var(--gray); }
+  .task-block { margin-bottom: 26px; }
+  .task-block h3 { font-size: 0.98rem; color: var(--purple-dark); margin: 0 0 4px; }
+  .task-block .instr { font-size: 0.85rem; color: var(--gray); margin: 0 0 10px; }
+  .progress-summary { display:flex; align-items:center; gap:10px; margin-bottom: 12px; }
+  .progress-bar { flex:1; height: 8px; background: var(--purple-light); border-radius: 5px; overflow:hidden; }
+  .progress-fill { height:100%; background: var(--purple); width:0%; transition: width .3s; }
+  .progress-text { font-size: 0.8rem; color: var(--gray); white-space:nowrap; }
+  .task-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .task-item:last-child { border-bottom:none; }
+  .task-prompt { margin-bottom: 6px; font-size: 0.93rem; }
+  .task-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .task-input { flex:1; min-width: 140px; padding: 8px 10px; border:1px solid var(--border); border-radius: 8px; font-size: 0.92rem; }
+  .task-input.correct { border-color: var(--green); background:#f0fdf4; }
+  .task-input.wrong { border-color: var(--red); background:#fef2f2; }
+  .btn { padding: 8px 14px; background: var(--purple); color:white; border:none; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; }
+  .btn:hover { background: var(--purple-dark); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .feedback { font-size: 0.82rem; font-weight:600; min-width: 60px; }
+  .feedback.ok { color: var(--green); }
+  .feedback.bad { color: var(--red); }
+  .reveal { font-size: 0.8rem; color: var(--gray); margin-top:4px; display:none; }
+  footer { text-align:center; color:var(--gray); font-size:0.75rem; padding:10px 20px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">Guli | Rus tili — Книга 1</p>
+  <h1>Урок 6. Имена прилагательные — согласование по родам</h1>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="vocab">📖 Словарь</button>
+    <button class="tab-btn" data-tab="tasks">✏️ Задания</button>
+    <button class="tab-btn" data-tab="homework">🏠 Дом. задание</button>
+  </div>
+
+  <div id="panel-vocab" class="panel active">
+    <div class="card">
+      <h2>Слова урока (<span id="vocab-count"></span>)</h2>
+      <table class="vocab"><thead><tr><th>№</th><th>Русский</th><th>O'zbekcha</th></tr></thead>
+      <tbody id="vocab-body"></tbody></table>
+    </div>
+  </div>
+
+  <div id="panel-tasks" class="panel">
+    <div id="tasks-container"></div>
+  </div>
+
+  <div id="panel-homework" class="panel">
+    <div id="homework-container"></div>
+  </div>
+</div>
+<footer>Guli | Rus tili — прогресс сохраняется локально в этом браузере</footer>
+
+<script>
+const LESSON = {"id": 6, "title": "Имена прилагательные — согласование по родам", "vocab": [["большой", "katta"], ["маленький", "kichik"], ["высокий", "baland"], ["низкий", "past"], ["длинный", "uzun"], ["короткий", "qisqa"], ["широкий", "keng"], ["узкий", "tor"], ["толстый", "qalin"], ["тонкий", "yupqa"], ["тяжёлый", "og'ir"], ["лёгкий", "yengil"], ["мягкий", "yumshoq"], ["твёрдый", "qattiq"], ["гладкий", "silliq"], ["шероховатый", "g'adir-budur"], ["гибкий", "egiluvchan"], ["жёсткий", "qattiq"], ["крепкий", "mustahkam"], ["хрупкий", "mo'rt"], ["горячий", "issiq"], ["холодный", "sovuq"], ["тёплый", "iliq"], ["прохладный", "salqin"], ["сухой", "quruq"], ["мокрый", "ho'l"], ["влажный", "nam"], ["ледяной", "muzdek"], ["обжигающий", "kuydiruvchi"], ["замёрзший", "muzlagan"], ["новый", "yangi"], ["старый", "eski"], ["молодой", "yosh"], ["пожилой", "keksa"], ["древний", "qadimiy"], ["современный", "zamonaviy"], ["ранний", "erta"], ["поздний", "kech"], ["постоянный", "doimiy"], ["временный", "vaqtinchalik"], ["красивый", "chiroyli"], ["некрасивый", "xunuk"], ["чистый", "toza"], ["грязный", "iflos"], ["аккуратный", "ozoda"], ["небрежный", "beparvo"], ["яркий", "yorqin"], ["тусклый", "xira"], ["светлый", "yorug'"], ["тёмный", "qorong'i"], ["добрый", "mehribon"], ["злой", "yovuz"], ["умный", "aqlli"], ["глупый", "ahmoq"], ["весёлый", "quvnoq"], ["грустный", "g'amgin"], ["смелый", "jasur"], ["трусливый", "qo'rqoq"], ["честный", "halol"], ["ленивый", "dangasa"], ["вежливый", "odobli"], ["грубый", "qo'pol"], ["терпеливый", "sabrli"], ["нервный", "asabiy"], ["спокойный", "tinch"], ["уверенный", "ishonchli"], ["скромный", "kamtar"], ["гордый", "mag'rur"], ["щедрый", "saxiy"], ["жадный", "baxil"], ["вкусный", "mazali"], ["невкусный", "mazasiz"], ["сладкий", "shirin"], ["горький", "achchiq"], ["солёный", "sho'r"], ["кислый", "nordon"], ["острый", "achchiq (achchiq-tundir)"], ["свежий", "yangi"], ["испорченный", "buzilgan"], ["жирный", "yog'li"], ["дорогой", "qimmat"], ["дешёвый", "arzon"], ["богатый", "boy"], ["бедный", "kambag'al"], ["выгодный", "foydali"], ["убыточный", "zararli"], ["экономный", "tejamkor"], ["расточительный", "isrofgar"], ["доступный", "qulay"], ["недоступный", "qulay emas"], ["быстрый", "tez"], ["медленный", "sekin"], ["трудный", "qiyin"], ["простой", "oddiy"], ["сложный", "murakkab"], ["срочный", "shoshilinch"], ["неторопливый", "shoshilmas"], ["удобный", "qulay"], ["неудобный", "noqulay"], ["внезапный", "to'satdan"], ["близкий", "yaqin"], ["далёкий", "uzoq"], ["левый", "chap"], ["правый", "o'ng"], ["верхний", "yuqori"], ["нижний", "quyi"], ["передний", "oldingi"], ["задний", "orqadagi"], ["внутренний", "ichki"], ["внешний", "tashqi"], ["здоровый", "sog'lom"], ["больной", "kasal"], ["живой", "tirik"], ["мёртвый", "o'lik"], ["сильный", "kuchli"], ["слабый", "zaif"], ["активный", "faol"], ["уставший", "charchagan"], ["бодрый", "tetik"], ["сонный", "uyquchan"], ["известный", "mashhur"], ["знакомый", "tanish"], ["незнакомый", "notanish"], ["популярный", "ommabop"], ["важный", "muhim"], ["главный", "asosiy"], ["обычный", "odatiy"], ["особенный", "alohida"], ["общий", "umumiy"], ["личный", "shaxsiy"], ["деревянный", "yog'ochdan"], ["металлический", "metall"], ["стеклянный", "shishadan"], ["каменный", "toshdan"], ["бумажный", "qog'ozdan"], ["кожаный", "teridan"], ["пластиковый", "plastik"], ["шерстяной", "jundan"], ["золотой", "oltin"], ["серебряный", "kumush"], ["интересный", "qiziqarli"], ["скучный", "zerikarli"], ["полезный", "foydali"], ["вредный", "zararli"], ["опасный", "xavfli"], ["безопасный", "xavfsiz"], ["правильный", "to'g'ri"], ["неправильный", "noto'g'ri"], ["возможный", "mumkin"], ["невозможный", "mumkin emas"]], "tasks": [{"title": "Задание 1", "instruction": "So'zga qarab «какой / какая / какое / какие» so'zini qo'ying.", "items": [{"prompt": "комната", "answer": "Какая комната?"}, {"prompt": "учебник", "answer": "Какой учебник?"}, {"prompt": "письмо", "answer": "Какое письмо?"}, {"prompt": "ключи", "answer": "Какие ключи?"}, {"prompt": "гора", "answer": "Какая гора?"}, {"prompt": "подарок", "answer": "Какой подарок?"}, {"prompt": "счастье", "answer": "Какое счастье?"}, {"prompt": "врачи", "answer": "Какие врачи?"}, {"prompt": "подушка", "answer": "Какая подушка?"}, {"prompt": "парк", "answer": "Какой парк?"}, {"prompt": "яйцо", "answer": "Какое яйцо?"}, {"prompt": "тетради", "answer": "Какие тетради?"}, {"prompt": "работа", "answer": "Какая работа?"}, {"prompt": "сосед", "answer": "Какой сосед?"}, {"prompt": "масло", "answer": "Какое масло?"}, {"prompt": "школы", "answer": "Какие школы?"}]}, {"title": "Задание 2", "instruction": "Prilagatelnoyni ismga (родга) mos holda qo'ying.", "items": [{"prompt": "(сосед, весёлый)", "answer": "весёлый сосед."}, {"prompt": "(кухня, чистый)", "answer": "чистая кухня."}, {"prompt": "(окно, большой)", "answer": "большое окно."}, {"prompt": "(тетради, новый)", "answer": "новые тетради."}, {"prompt": "(сумка, дорогой)", "answer": "дорогая сумка."}, {"prompt": "(учитель, умный)", "answer": "умный учитель."}, {"prompt": "(счастье, большой)", "answer": "большое счастье."}, {"prompt": "(врачи, известный)", "answer": "известные врачи."}, {"prompt": "(свеча, маленький)", "answer": "маленькая свеча."}, {"prompt": "(парк, красивый)", "answer": "красивый парк."}, {"prompt": "(письмо, короткий)", "answer": "короткое письмо."}, {"prompt": "(школа, старый)", "answer": "старая школа."}, {"prompt": "(ключи, новый)", "answer": "новые ключи."}, {"prompt": "(гора, высокий)", "answer": "высокая гора."}, {"prompt": "(работа, трудный)", "answer": "трудная работа."}, {"prompt": "(яблоко, вкусный)", "answer": "вкусное яблоко."}]}, {"title": "Задание 3", "instruction": "Savolga o'zingiz javob bering (o'z fikringizni yozing).", "items": [{"prompt": "Какой сосед?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какая кухня?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какое окно?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какие тетради?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какой парк?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какая сумка?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какое счастье?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какие врачи?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какая свеча?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какой учитель?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какое письмо?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какая школа?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какие ключи?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какая гора?", "answer": "(своё прилагательное, любое подходящее по роду)"}, {"prompt": "Какой лес?", "answer": "(своё прилагательное, любое подходящее по роду)"}], "selfCheck": true}], "homework_sections": [{"title": "Домашнее задание", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu jasur qo'shni.", "answer": "Это смелый сосед."}, {"prompt": "Bu katta park.", "answer": "Это большой парк."}, {"prompt": "Bu mening mehribon shifokorim.", "answer": "Это мой добрый врач."}, {"prompt": "Bu kichik kalit.", "answer": "Это маленький ключ."}, {"prompt": "Bu sening yangi qalaming.", "answer": "Это твой новый карандаш."}, {"prompt": "Bu quvnoq mehmon.", "answer": "Это весёлый гость."}, {"prompt": "Bu bizning aqlli o'qituvchimiz.", "answer": "Это наш умный учитель."}, {"prompt": "Bu sizning mashhur muhandisingiz.", "answer": "Это ваш известный инженер."}, {"prompt": "Bu yangi pishloq.", "answer": "Это новый сыр."}, {"prompt": "Bu uning katta bozori.", "answer": "Это его большой рынок."}, {"prompt": "Bu mening chiroyli opam.", "answer": "Это моя красивая сестра."}, {"prompt": "Bu qimmat sumka.", "answer": "Это дорогая сумка."}, {"prompt": "Bu bizning toza oshxonamiz.", "answer": "Это наша чистая кухня."}, {"prompt": "Bu sening yangi daftaring.", "answer": "Это твоя новая тетрадь."}, {"prompt": "Bu katta maktab.", "answer": "Это большая школа."}, {"prompt": "Bu mening qiyin ishim.", "answer": "Это моя трудная работа."}, {"prompt": "Bu muhim uchrashuv.", "answer": "Это важная встреча."}, {"prompt": "Bu uning kichik shami.", "answer": "Это его маленькая свеча."}, {"prompt": "Bu yumshoq yostiq.", "answer": "Это мягкая подушка."}, {"prompt": "Bu sizning eski doskangiz.", "answer": "Это ваша старая доска."}, {"prompt": "Bu katta deraza.", "answer": "Это большое окно."}, {"prompt": "Bu mening qisqa xatim.", "answer": "Это моё короткое письмо."}, {"prompt": "Bu katta baxt.", "answer": "Это большое счастье."}, {"prompt": "Bu yangi tuxum.", "answer": "Это новое яйцо."}, {"prompt": "Bu bizning sovuq tongimiz.", "answer": "Это наше холодное утро."}, {"prompt": "Bu qiyin vaqt.", "answer": "Это трудное время."}, {"prompt": "Bu sening qimmat doring.", "answer": "Это твоё дорогое лекарство."}, {"prompt": "Bu uning mehribon yuragi.", "answer": "Это его доброе сердце."}, {"prompt": "Bu yangi sariyog'.", "answer": "Это новое масло."}, {"prompt": "Bu mazali olma.", "answer": "Это вкусное яблоко."}, {"prompt": "Bu mening yangi kalitlarim.", "answer": "Это мои новые ключи."}, {"prompt": "Bu toza daftarlar.", "answer": "Это чистые тетради."}, {"prompt": "Bu sening eski xatlaring.", "answer": "Это твои старые письма."}, {"prompt": "Bu mashhur shifokorlar.", "answer": "Это известные врачи."}, {"prompt": "Bu bizning chiroyli parklarimiz.", "answer": "Это наши красивые парки."}, {"prompt": "Bu katta maktablar.", "answer": "Это большие школы."}, {"prompt": "Bu sizning toza derazalaringiz.", "answer": "Это ваши чистые окна."}, {"prompt": "Bu yangi qalamlar.", "answer": "Это новые карандаши."}, {"prompt": "Bu uning chiroyli ko'ylaklari.", "answer": "Это её красивые рубашки."}, {"prompt": "Bu yog'och eshiklar.", "answer": "Это деревянные двери."}, {"prompt": "Bu mening mehribon xotinim.", "answer": "Это моя добрая жена."}, {"prompt": "Bu sening kuchli ering.", "answer": "Это твой сильный муж."}, {"prompt": "Bu bizning kichik nabiramiz.", "answer": "Это наш маленький внук."}, {"prompt": "Bu sizning quvnoq nabirangiz.", "answer": "Это ваша весёлая внучка."}, {"prompt": "Bu uzoq orol.", "answer": "Это далёкий остров."}, {"prompt": "Bu shirin nok.", "answer": "Это сладкая груша."}, {"prompt": "Bu mening kichik mushugim.", "answer": "Это мой маленький кот."}, {"prompt": "Bu uning katta iti.", "answer": "Это его большая собака."}, {"prompt": "Bu baland tog'.", "answer": "Это высокая гора."}, {"prompt": "Bu qorong'i o'rmon.", "answer": "Это тёмный лес."}]}]};
+const STORAGE_KEY = "guli_book1_lesson" + LESSON.id + "_progress";
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+
+function normalize(s) {
+  return s.toLowerCase().replace(/ё/g,"е").replace(/[.,!?;:"'()«»]/g,"").replace(/\s+/g," ").trim();
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("vocab-count").textContent = LESSON.vocab.length;
+document.getElementById("vocab-body").innerHTML = LESSON.vocab.map((r,i) =>
+  `<tr><td>${i+1}</td><td>${r[0]}</td><td class="uz">${r[1]}</td></tr>`
+).join("");
+
+function buildItemsHTML(items, keyPrefix, isSelfCheck) {
+  return items.map((item, i) => {
+    const key = keyPrefix + "_" + i;
+    const isDone = !!progress[key];
+    return `
+    <div class="task-item" data-key="${key}">
+      <div class="task-prompt"><b>${i+1}.</b> ${item.prompt}</div>
+      <div class="task-row">
+        <input type="text" class="task-input ${isDone?'correct':''}" placeholder="Введите ответ..." ${isDone?'disabled':''} value="${isDone&&!isSelfCheck?item.answer:''}">
+        <button class="btn check-btn" ${isDone?'disabled':''}>${isSelfCheck ? 'Показать ответ' : 'Проверить'}</button>
+        <span class="feedback ${isDone?'ok':''}">${isDone?'✓':''}</span>
+      </div>
+      <div class="reveal">Ответ: ${item.answer}</div>
+    </div>`;
+  }).join("");
+}
+
+function attachHandlers(container, items, keyPrefix, isSelfCheck, onDone) {
+  container.querySelectorAll(".task-item").forEach((itemEl, idx) => {
+    const input = itemEl.querySelector(".task-input");
+    const btn = itemEl.querySelector(".check-btn");
+    const feedback = itemEl.querySelector(".feedback");
+    const reveal = itemEl.querySelector(".reveal");
+    const item = items[idx];
+    const key = keyPrefix + "_" + idx;
+
+    function submit() {
+      if (isSelfCheck) {
+        reveal.style.display = "block";
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+        return;
+      }
+      const val = input.value.trim();
+      if (!val) return;
+      if (normalize(val) === normalize(item.answer)) {
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.classList.add("correct"); input.classList.remove("wrong");
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+      } else {
+        feedback.textContent = "✗"; feedback.className = "feedback bad";
+        input.classList.add("wrong"); input.classList.remove("correct");
+        reveal.style.display = "block";
+      }
+    }
+    btn.addEventListener("click", submit);
+    input.addEventListener("keydown", e => { if (e.key==="Enter") submit(); });
+  });
+}
+
+function renderSection(container, sections, keyBase) {
+  sections.forEach((task, ti) => {
+    const block = document.createElement("div");
+    block.className = "card task-block";
+    block.innerHTML = `
+      <h3>${task.title}</h3>
+      <p class="instr">${task.instruction}</p>
+      <div class="progress-summary">
+        <div class="progress-bar"><div class="progress-fill" id="${keyBase}${ti}-fill"></div></div>
+        <div class="progress-text" id="${keyBase}${ti}-text">0/${task.items.length}</div>
+      </div>
+      <div class="items" id="${keyBase}${ti}-items"></div>
+    `;
+    container.appendChild(block);
+    const itemsEl = block.querySelector(".items");
+    const prefix = keyBase + ti;
+    itemsEl.innerHTML = buildItemsHTML(task.items, prefix, !!task.selfCheck);
+    function updateProg() {
+      const total = task.items.length;
+      const done = task.items.filter((_, i) => progress[prefix+"_"+i]).length;
+      document.getElementById(`${prefix}-fill`).style.width = (done/total*100)+"%";
+      document.getElementById(`${prefix}-text`).textContent = done+"/"+total;
+    }
+    attachHandlers(itemsEl, task.items, prefix, !!task.selfCheck, updateProg);
+    updateProg();
+  });
+}
+
+renderSection(document.getElementById("tasks-container"), LESSON.tasks, "task");
+renderSection(document.getElementById("homework-container"), LESSON.homework_sections, "hw");
+</script>
+</body>
+</html>
