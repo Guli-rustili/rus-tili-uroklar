@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 8 | Guli Rus tili</title>
+<style>
+  :root {
+    --purple: #7c3aed; --purple-dark: #5b21b6; --purple-light: #f3ecfd;
+    --bg: #faf8ff; --text: #201533; --gray: #6b6478; --green: #15803d; --red: #b91c1c;
+    --border: #e6ddf5;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height:1.55; }
+  header { background: linear-gradient(135deg, var(--purple), var(--purple-dark)); color: white; padding: 22px 18px 26px; }
+  header .eyebrow { font-size: 0.8rem; opacity: 0.85; margin: 0 0 4px; }
+  header h1 { margin: 0; font-size: 1.2rem; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 60px; }
+  .tabs { display:flex; gap:8px; margin: -14px 0 20px; position: relative; z-index: 2; flex-wrap:wrap; }
+  .tab-btn { flex:1; min-width:100px; background: white; border: 1px solid var(--border); padding: 10px 6px; border-radius: 10px; font-size: 0.85rem; font-weight:600; color: var(--purple-dark); cursor:pointer; box-shadow: 0 2px 8px rgba(124,58,237,0.08); }
+  .tab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 20px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--purple-dark); }
+  table.vocab { width:100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.vocab th { background: var(--purple-light); text-align:left; padding: 7px 8px; }
+  table.vocab td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.vocab td.uz { color: var(--gray); }
+  .task-block { margin-bottom: 26px; }
+  .task-block h3 { font-size: 0.98rem; color: var(--purple-dark); margin: 0 0 4px; }
+  .task-block .instr { font-size: 0.85rem; color: var(--gray); margin: 0 0 10px; }
+  .progress-summary { display:flex; align-items:center; gap:10px; margin-bottom: 12px; }
+  .progress-bar { flex:1; height: 8px; background: var(--purple-light); border-radius: 5px; overflow:hidden; }
+  .progress-fill { height:100%; background: var(--purple); width:0%; transition: width .3s; }
+  .progress-text { font-size: 0.8rem; color: var(--gray); white-space:nowrap; }
+  .task-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .task-item:last-child { border-bottom:none; }
+  .task-prompt { margin-bottom: 6px; font-size: 0.93rem; }
+  .task-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .task-input { flex:1; min-width: 140px; padding: 8px 10px; border:1px solid var(--border); border-radius: 8px; font-size: 0.92rem; }
+  .task-input.correct { border-color: var(--green); background:#f0fdf4; }
+  .task-input.wrong { border-color: var(--red); background:#fef2f2; }
+  .btn { padding: 8px 14px; background: var(--purple); color:white; border:none; border-radius:8px; font-weight:600; font-size:0.85rem; cursor:pointer; }
+  .btn:hover { background: var(--purple-dark); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .feedback { font-size: 0.82rem; font-weight:600; min-width: 60px; }
+  .feedback.ok { color: var(--green); }
+  .feedback.bad { color: var(--red); }
+  .reveal { font-size: 0.8rem; color: var(--gray); margin-top:4px; display:none; }
+  footer { text-align:center; color:var(--gray); font-size:0.75rem; padding:10px 20px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <p class="eyebrow">Guli | Rus tili — Книга 1</p>
+  <h1>Урок 8. Сравнительная и превосходная степень прилагательных</h1>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="vocab">📖 Словарь</button>
+    <button class="tab-btn" data-tab="tasks">✏️ Задания</button>
+    <button class="tab-btn" data-tab="homework">🏠 Дом. задание</button>
+  </div>
+
+  <div id="panel-vocab" class="panel active">
+    <div class="card">
+      <h2>Слова урока (<span id="vocab-count"></span>)</h2>
+      <table class="vocab"><thead><tr><th>№</th><th>Русский</th><th>O'zbekcha</th></tr></thead>
+      <tbody id="vocab-body"></tbody></table>
+    </div>
+  </div>
+
+  <div id="panel-tasks" class="panel">
+    <div id="tasks-container"></div>
+  </div>
+
+  <div id="panel-homework" class="panel">
+    <div id="homework-container"></div>
+  </div>
+</div>
+<footer>Guli | Rus tili — прогресс сохраняется локально в этом браузере</footer>
+
+<script>
+const LESSON = {"id": 8, "title": "Сравнительная и превосходная степень прилагательных", "vocab": [["выше", "balandroq"], ["ниже", "pastroq"], ["короче", "qisqaroq"], ["шире", "kengroq"], ["уже", "torroq"], ["толще", "qalinroq"], ["тоньше", "yupqaroq"], ["легче", "yengilroq"], ["мягче", "yumshoqroq"], ["твёрже", "qattiqroq"], ["глаже", "silliqroq"], ["гибче", "egiluvchanroq"], ["жёстче", "qattiqroq"], ["крепче", "mustahkamroq"], ["хрупче", "mo'rtroq"], ["суше", "quruqroq"], ["старше", "kattaroq (yoshda)"], ["моложе", "yoshroq"], ["раньше", "ertaroq"], ["позже", "kechroq"], ["чище", "tozaroq"], ["ярче", "yorqinroq"], ["горже", "mag'rurroq"], ["слаще", "shirinroq"], ["горче", "achchiqroq"], ["дороже", "qimmatroq"], ["дешевле", "arzonroq"], ["богаче", "boyroq"], ["проще", "oddiyroq"], ["ближе", "yaqinroq"], ["дальше", "uzoqroq"], ["больше", "kattaroq"], ["меньше", "kichikroq"], ["лучше", "yaxshiroq"], ["хуже", "yomonroq"], ["длиннее", "uzunroq"], ["тяжелее", "og'irroq"], ["горячее", "issiqroq"], ["холоднее", "sovuqroq"], ["теплее", "iliqroq"], ["прохладнее", "salqinroq"], ["мокрее", "ho'lroq"], ["влажнее", "namroq"], ["новее", "yangiroq"], ["современнее", "zamonaviyroq"], ["красивее", "chiroyliroq"], ["некрасивее", "xunukroq"], ["грязнее", "iflosroq"], ["аккуратнее", "ozodaroq"], ["небрежнее", "beparvoroq"], ["тусклее", "xiraroq"], ["светлее", "yorug'roq"], ["темнее", "qorong'iroq"], ["добрее", "mehribonroq"], ["злее", "yovuzroq"], ["умнее", "aqlliroq"], ["глупее", "ahmoqroq"], ["веселее", "quvnoqroq"], ["грустнее", "g'amginroq"], ["смелее", "jasurroq"], ["трусливее", "qo'rqoqroq"], ["честнее", "halolroq"], ["ленивее", "dangasaroq"], ["вежливее", "odobliroq"], ["грубее", "qo'polroq"], ["терпеливее", "sabrliroq"], ["нервнее", "asabiyroq"], ["спокойнее", "tinchroq"], ["увереннее", "ishonchliroq"], ["скромнее", "kamtarroq"], ["щедрее", "saxiyroq"], ["жаднее", "baxilroq"], ["вкуснее", "mazaliroq"], ["солёнее", "sho'rroq"], ["кислее", "nordonroq"], ["острее", "achchiqroq"], ["свежее", "yangiroq"], ["жирнее", "yog'liroq"], ["беднее", "kambag'alroq"], ["выгоднее", "foydaliroq"], ["экономнее", "tejamkorroq"], ["доступнее", "qulayroq"], ["быстрее", "tezroq"], ["медленнее", "sekinroq"], ["труднее", "qiyinroq"], ["сложнее", "murakkabroq"], ["удобнее", "qulayroq"], ["неудобнее", "noqulayroq"], ["здоровее", "sog'lomroq"], ["сильнее", "kuchliroq"], ["слабее", "zaifroq"], ["активнее", "faolroq"], ["бодрее", "tetikroq"], ["известнее", "mashhurroq"], ["популярнее", "ommaboproq"], ["важнее", "muhimroq"], ["интереснее", "qiziqarliroq"], ["скучнее", "zerikarliroq"], ["полезнее", "foydaliroq"], ["вреднее", "zararliroq"], ["опаснее", "xavfliroq"], ["безопаснее", "xavfsizroq"], ["правильнее", "to'g'riroq"]], "tasks": [{"title": "Задание 1", "instruction": "Namunaga qarab, «этот ... чем тот ...» gapini tuzing.", "items": [{"prompt": "(красивый, сосед)", "answer": "Этот сосед красивее, чем тот сосед."}, {"prompt": "(умный, врач)", "answer": "Этот врач умнее, чем тот врач."}, {"prompt": "(большой, парк)", "answer": "Этот парк больше, чем тот парк."}, {"prompt": "(новый, ключ)", "answer": "Этот ключ новее, чем тот ключ."}, {"prompt": "(дорогой, подарок)", "answer": "Этот подарок дороже, чем тот подарок."}, {"prompt": "(чистый, кухня)", "answer": "Этот кухня чище, чем тот кухня."}, {"prompt": "(маленький, сумка)", "answer": "Этот сумка меньше, чем тот сумка."}, {"prompt": "(старый, школа)", "answer": "Этот школа старше, чем тот школа."}, {"prompt": "(интересный, работа)", "answer": "Этот работа интереснее, чем тот работа."}, {"prompt": "(весёлый, встреча)", "answer": "Этот встреча веселее, чем тот встреча."}, {"prompt": "(тёплый, окно)", "answer": "Этот окно теплее, чем тот окно."}, {"prompt": "(новый, письмо)", "answer": "Этот письмо новее, чем тот письмо."}, {"prompt": "(дорогой, лекарство)", "answer": "Этот лекарство дороже, чем тот лекарство."}, {"prompt": "(умный, врачи)", "answer": "Этот врачи умнее, чем тот врачи."}, {"prompt": "(новый, ключи)", "answer": "Этот ключи новее, чем тот ключи."}]}, {"title": "Задание 2", "instruction": "Namunaga qarab gap tuzing (этот/тот kerak emas).", "items": [{"prompt": "(Анвар, Алишер, сильнее)", "answer": "Анвар сильнее, чем Алишер."}, {"prompt": "(Дилноза, Малика, добрее)", "answer": "Дилноза добрее, чем Малика."}, {"prompt": "(врач, продавец, умнее)", "answer": "врач умнее, чем продавец."}, {"prompt": "(учитель, инженер, терпеливее)", "answer": "учитель терпеливее, чем инженер."}, {"prompt": "(весна, осень, теплее)", "answer": "весна теплее, чем осень."}, {"prompt": "(лето, зима, длиннее)", "answer": "лето длиннее, чем зима."}, {"prompt": "(гора, холм, выше)", "answer": "гора выше, чем холм."}, {"prompt": "(парк, двор, красивее)", "answer": "парк красивее, чем двор."}, {"prompt": "(кухня, подвал, чище)", "answer": "кухня чище, чем подвал."}, {"prompt": "(работа, отдых, труднее)", "answer": "работа труднее, чем отдых."}, {"prompt": "(подарок, письмо, дороже)", "answer": "подарок дороже, чем письмо."}, {"prompt": "(больница, аптека, важнее)", "answer": "больница важнее, чем аптека."}, {"prompt": "(дружба, деньги, важнее)", "answer": "дружба важнее, чем деньги."}, {"prompt": "(счастье, деньги, важнее)", "answer": "счастье важнее, чем деньги."}, {"prompt": "(врачи, продавцы, умнее)", "answer": "врачи умнее, чем продавцы."}]}, {"title": "Задание 3", "instruction": "Namunaga qarab «но» bilan gap tuzing.", "items": [{"prompt": "(умный, сосед)", "answer": "Этот сосед умный, но тот сосед умнее."}, {"prompt": "(красивый, парк)", "answer": "Этот парк красивый, но тот парк красивее."}, {"prompt": "(новый, ключ)", "answer": "Этот ключ новый, но тот ключ новее."}, {"prompt": "(дорогой, подарок)", "answer": "Этот подарок дорогой, но тот подарок дороже."}, {"prompt": "(чистый, кухня)", "answer": "Этот кухня чистый, но тот кухня чище."}, {"prompt": "(маленький, сумка)", "answer": "Этот сумка маленький, но тот сумка меньше."}, {"prompt": "(старый, школа)", "answer": "Этот школа старый, но тот школа старше."}, {"prompt": "(интересный, работа)", "answer": "Этот работа интересный, но тот работа интереснее."}, {"prompt": "(весёлый, встреча)", "answer": "Этот встреча весёлый, но тот встреча веселее."}, {"prompt": "(тёплый, окно)", "answer": "Этот окно тёплый, но тот окно теплее."}, {"prompt": "(новый, письмо)", "answer": "Этот письмо новый, но тот письмо новее."}, {"prompt": "(дорогой, лекарство)", "answer": "Этот лекарство дорогой, но тот лекарство дороже."}, {"prompt": "(умный, врачи)", "answer": "Этот врачи умный, но тот врачи умнее."}, {"prompt": "(новый, ключи)", "answer": "Этот ключи новый, но тот ключи новее."}, {"prompt": "(сильный, сосед)", "answer": "Этот сосед сильный, но тот сосед сильнее."}]}, {"title": "Задание 4", "instruction": "Namunaga qarab «чем ..., тем ...» gapini tuzing.", "items": [{"prompt": "(больше, лучше)", "answer": "Чем больше, тем лучше."}, {"prompt": "(быстрее, удобнее)", "answer": "Чем быстрее, тем удобнее."}, {"prompt": "(дешевле, выгоднее)", "answer": "Чем дешевле, тем выгоднее."}, {"prompt": "(умнее, лучше)", "answer": "Чем умнее, тем лучше."}, {"prompt": "(проще, легче)", "answer": "Чем проще, тем легче."}, {"prompt": "(теплее, приятнее)", "answer": "Чем теплее, тем приятнее."}, {"prompt": "(меньше, легче)", "answer": "Чем меньше, тем легче."}, {"prompt": "(дороже, лучше)", "answer": "Чем дороже, тем лучше."}, {"prompt": "(быстрее, лучше)", "answer": "Чем быстрее, тем лучше."}, {"prompt": "(новее, лучше)", "answer": "Чем новее, тем лучше."}, {"prompt": "(сильнее, увереннее)", "answer": "Чем сильнее, тем увереннее."}, {"prompt": "(спокойнее, лучше)", "answer": "Чем спокойнее, тем лучше."}, {"prompt": "(чище, приятнее)", "answer": "Чем чище, тем приятнее."}, {"prompt": "(ближе, удобнее)", "answer": "Чем ближе, тем удобнее."}, {"prompt": "(больше, веселее)", "answer": "Чем больше, тем веселее."}]}, {"title": "Задание 5", "instruction": "Namunaga qarab «самый / самая / самое / самые» bilan gap tuzing.", "items": [{"prompt": "(сильный, сосед)", "answer": "Этот сосед самый сильный."}, {"prompt": "(умный, врач)", "answer": "Этот врач самый умный."}, {"prompt": "(большой, парк)", "answer": "Этот парк самый большой."}, {"prompt": "(новый, ключ)", "answer": "Этот ключ самый новый."}, {"prompt": "(дорогой, подарок)", "answer": "Этот подарок самый дорогой."}, {"prompt": "(чистый, кухня)", "answer": "Эта кухня самая чистый."}, {"prompt": "(маленький, сумка)", "answer": "Эта сумка самая маленький."}, {"prompt": "(старый, школа)", "answer": "Эта школа самая старый."}, {"prompt": "(интересный, работа)", "answer": "Эта работа самая интересный."}, {"prompt": "(весёлый, встреча)", "answer": "Эта встреча самая весёлый."}, {"prompt": "(тёплый, окно)", "answer": "Это окно самое тёплый."}, {"prompt": "(новый, письмо)", "answer": "Это письмо самое новый."}, {"prompt": "(дорогой, лекарство)", "answer": "Это лекарство самое дорогой."}, {"prompt": "(умный, врачи)", "answer": "Эти врачи самые умный."}, {"prompt": "(новый, ключи)", "answer": "Эти ключи самые новый."}]}], "homework_sections": [{"title": "Дом. задание — «Этот ... чем тот ...»", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu qo'shni u qo'shnidan kuchliroq.", "answer": "Этот сосед сильнее, чем тот сосед."}, {"prompt": "Bu park u parkdan chiroyliroq.", "answer": "Этот парк красивее, чем тот парк."}, {"prompt": "Bu kalit u kalitdan yangiroq.", "answer": "Этот ключ новее, чем тот ключ."}, {"prompt": "Bu sovg'a u sovg'adan qimmatroq.", "answer": "Этот подарок дороже, чем тот подарок."}, {"prompt": "Bu oshxona u oshxonadan tozaroq.", "answer": "Эта кухня чище, чем та кухня."}, {"prompt": "Bu sumka u sumkadan kichikroq.", "answer": "Эта сумка меньше, чем та сумка."}, {"prompt": "Bu maktab u maktabdan eskiroq.", "answer": "Эта школа старше, чем та школа."}, {"prompt": "Bu ish u ishdan qiziqarliroq.", "answer": "Эта работа интереснее, чем та работа."}, {"prompt": "Bu uchrashuv u uchrashuvdan quvnoqroq.", "answer": "Эта встреча веселее, чем та встреча."}, {"prompt": "Bu deraza u derazadan iliqroq.", "answer": "Это окно теплее, чем то окно."}, {"prompt": "Bu xat u xatdan yangiroq.", "answer": "Это письмо новее, чем то письмо."}, {"prompt": "Bu dori u doridan qimmatroq.", "answer": "Это лекарство дороже, чем то лекарство."}, {"prompt": "Bu shifokorlar u shifokorlardan aqlliroq.", "answer": "Эти врачи умнее, чем те врачи."}, {"prompt": "Bu kalitlar u kalitlardan yangiroq.", "answer": "Эти ключи новее, чем те ключи."}, {"prompt": "Bu qo'shni u qo'shnidan yaxshiroq.", "answer": "Этот сосед лучше, чем тот сосед."}]}, {"title": "Дом. задание — Без «этот/тот»", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Anvar Alisherdan kuchliroq.", "answer": "Анвар сильнее, чем Алишер."}, {"prompt": "Dilnoza Malikadan mehribonroq.", "answer": "Дилноза добрее, чем Малика."}, {"prompt": "Shifokor sotuvchidan aqlliroq.", "answer": "Врач умнее, чем продавец."}, {"prompt": "O'qituvchi muhandisdan sabrliroq.", "answer": "Учитель терпеливее, чем инженер."}, {"prompt": "Bahor kuzdan iliqroq.", "answer": "Весна теплее, чем осень."}, {"prompt": "Yoz qishdan uzunroq.", "answer": "Лето длиннее, чем зима."}, {"prompt": "Tog' tepalikdan balandroq.", "answer": "Гора выше, чем холм."}, {"prompt": "Park hovlidan chiroyliroq.", "answer": "Парк красивее, чем двор."}, {"prompt": "Ish dam olishdan qiyinroq.", "answer": "Работа труднее, чем отдых."}, {"prompt": "Do'stlik puldan muhimroq.", "answer": "Дружба важнее, чем деньги."}]}, {"title": "Дом. задание — «Но»", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu qo'shni aqlli, lekin u qo'shni aqlliroq.", "answer": "Этот сосед умный, но тот сосед умнее."}, {"prompt": "Bu park chiroyli, lekin u park chiroyliroq.", "answer": "Этот парк красивый, но тот парк красивее."}, {"prompt": "Bu kalit yangi, lekin u kalit yangiroq.", "answer": "Этот ключ новый, но тот ключ новее."}, {"prompt": "Bu sovg'a qimmat, lekin u sovg'a qimmatroq.", "answer": "Этот подарок дорогой, но тот подарок дороже."}, {"prompt": "Bu oshxona toza, lekin u oshxona tozaroq.", "answer": "Эта кухня чистая, но та кухня чище."}, {"prompt": "Bu maktab eski, lekin u maktab eskiroq.", "answer": "Эта школа старая, но та школа старше."}, {"prompt": "Bu ish qiziqarli, lekin u ish qiziqarliroq.", "answer": "Эта работа интересная, но та работа интереснее."}, {"prompt": "Bu deraza iliq, lekin u deraza iliqroq.", "answer": "Это окно тёплое, но то окно теплее."}, {"prompt": "Bu xat yangi, lekin u xat yangiroq.", "answer": "Это письмо новое, но то письмо новее."}, {"prompt": "Bu shifokorlar aqlli, lekin u shifokorlar aqlliroq.", "answer": "Эти врачи умные, но те врачи умнее."}]}, {"title": "Дом. задание — «Чем ..., тем ...»", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Qancha katta, shuncha yaxshi.", "answer": "Чем больше, тем лучше."}, {"prompt": "Qancha tez, shuncha qulay.", "answer": "Чем быстрее, тем удобнее."}, {"prompt": "Qancha arzon, shuncha foydali.", "answer": "Чем дешевле, тем выгоднее."}, {"prompt": "Qancha aqlli, shuncha yaxshi.", "answer": "Чем умнее, тем лучше."}, {"prompt": "Qancha oddiy, shuncha yengil.", "answer": "Чем проще, тем легче."}, {"prompt": "Qancha iliq, shuncha yoqimli.", "answer": "Чем теплее, тем приятнее."}, {"prompt": "Qancha kichik, shuncha yengil.", "answer": "Чем меньше, тем легче."}, {"prompt": "Qancha qimmat, shuncha yaxshi.", "answer": "Чем дороже, тем лучше."}, {"prompt": "Qancha tez, shuncha yaxshi.", "answer": "Чем быстрее, тем лучше."}, {"prompt": "Qancha yangi, shuncha yaxshi.", "answer": "Чем новее, тем лучше."}, {"prompt": "Qancha kuchli, shuncha ishonchli.", "answer": "Чем сильнее, тем увереннее."}, {"prompt": "Qancha tinch, shuncha yaxshi.", "answer": "Чем спокойнее, тем лучше."}, {"prompt": "Qancha toza, shuncha yoqimli.", "answer": "Чем чище, тем приятнее."}, {"prompt": "Qancha yaqin, shuncha qulay.", "answer": "Чем ближе, тем удобнее."}, {"prompt": "Qancha katta, shuncha quvnoq.", "answer": "Чем больше, тем веселее."}]}, {"title": "Дом. задание — «Самый/самая/самое/самые»", "instruction": "Gaplarni ruscha tarjima qiling.", "items": [{"prompt": "Bu eng kuchli qo'shni.", "answer": "Это самый сильный сосед."}, {"prompt": "Bu eng aqlli shifokor.", "answer": "Это самый умный врач."}, {"prompt": "Bu eng katta park.", "answer": "Это самый большой парк."}, {"prompt": "Bu eng yangi kalit.", "answer": "Это самый новый ключ."}, {"prompt": "Bu eng qimmat sovg'a.", "answer": "Это самый дорогой подарок."}, {"prompt": "Bu eng toza oshxona.", "answer": "Это самая чистая кухня."}, {"prompt": "Bu eng kichik sumka.", "answer": "Это самая маленькая сумка."}, {"prompt": "Bu eng eski maktab.", "answer": "Это самая старая школа."}, {"prompt": "Bu eng qiziqarli ish.", "answer": "Это самая интересная работа."}, {"prompt": "Bu eng iliq deraza.", "answer": "Это самое тёплое окно."}]}]};
+const STORAGE_KEY = "guli_book1_lesson" + LESSON.id + "_progress";
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+
+function normalize(s) {
+  return s.toLowerCase().replace(/ё/g,"е").replace(/[.,!?;:"'()«»]/g,"").replace(/\s+/g," ").trim();
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("vocab-count").textContent = LESSON.vocab.length;
+document.getElementById("vocab-body").innerHTML = LESSON.vocab.map((r,i) =>
+  `<tr><td>${i+1}</td><td>${r[0]}</td><td class="uz">${r[1]}</td></tr>`
+).join("");
+
+function buildItemsHTML(items, keyPrefix, isSelfCheck) {
+  return items.map((item, i) => {
+    const key = keyPrefix + "_" + i;
+    const isDone = !!progress[key];
+    return `
+    <div class="task-item" data-key="${key}">
+      <div class="task-prompt"><b>${i+1}.</b> ${item.prompt}</div>
+      <div class="task-row">
+        <input type="text" class="task-input ${isDone?'correct':''}" placeholder="Введите ответ..." ${isDone?'disabled':''} value="${isDone&&!isSelfCheck?item.answer:''}">
+        <button class="btn check-btn" ${isDone?'disabled':''}>${isSelfCheck ? 'Показать ответ' : 'Проверить'}</button>
+        <span class="feedback ${isDone?'ok':''}">${isDone?'✓':''}</span>
+      </div>
+      <div class="reveal">Ответ: ${item.answer}</div>
+    </div>`;
+  }).join("");
+}
+
+function attachHandlers(container, items, keyPrefix, isSelfCheck, onDone) {
+  container.querySelectorAll(".task-item").forEach((itemEl, idx) => {
+    const input = itemEl.querySelector(".task-input");
+    const btn = itemEl.querySelector(".check-btn");
+    const feedback = itemEl.querySelector(".feedback");
+    const reveal = itemEl.querySelector(".reveal");
+    const item = items[idx];
+    const key = keyPrefix + "_" + idx;
+
+    function submit() {
+      if (isSelfCheck) {
+        reveal.style.display = "block";
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+        return;
+      }
+      const val = input.value.trim();
+      if (!val) return;
+      if (normalize(val) === normalize(item.answer)) {
+        feedback.textContent = "✓"; feedback.className = "feedback ok";
+        input.classList.add("correct"); input.classList.remove("wrong");
+        input.disabled = true; btn.disabled = true;
+        progress[key] = true; saveProgress(progress);
+        onDone && onDone();
+      } else {
+        feedback.textContent = "✗"; feedback.className = "feedback bad";
+        input.classList.add("wrong"); input.classList.remove("correct");
+        reveal.style.display = "block";
+      }
+    }
+    btn.addEventListener("click", submit);
+    input.addEventListener("keydown", e => { if (e.key==="Enter") submit(); });
+  });
+}
+
+function renderSection(container, sections, keyBase) {
+  sections.forEach((task, ti) => {
+    const block = document.createElement("div");
+    block.className = "card task-block";
+    block.innerHTML = `
+      <h3>${task.title}</h3>
+      <p class="instr">${task.instruction}</p>
+      <div class="progress-summary">
+        <div class="progress-bar"><div class="progress-fill" id="${keyBase}${ti}-fill"></div></div>
+        <div class="progress-text" id="${keyBase}${ti}-text">0/${task.items.length}</div>
+      </div>
+      <div class="items" id="${keyBase}${ti}-items"></div>
+    `;
+    container.appendChild(block);
+    const itemsEl = block.querySelector(".items");
+    const prefix = keyBase + ti;
+    itemsEl.innerHTML = buildItemsHTML(task.items, prefix, !!task.selfCheck);
+    function updateProg() {
+      const total = task.items.length;
+      const done = task.items.filter((_, i) => progress[prefix+"_"+i]).length;
+      document.getElementById(`${prefix}-fill`).style.width = (done/total*100)+"%";
+      document.getElementById(`${prefix}-text`).textContent = done+"/"+total;
+    }
+    attachHandlers(itemsEl, task.items, prefix, !!task.selfCheck, updateProg);
+    updateProg();
+  });
+}
+
+renderSection(document.getElementById("tasks-container"), LESSON.tasks, "task");
+renderSection(document.getElementById("homework-container"), LESSON.homework_sections, "hw");
+</script>
+</body>
+</html>
